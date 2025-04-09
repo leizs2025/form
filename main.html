@@ -6,7 +6,7 @@
   <title>超度報名主頁</title>
   <style>
     body {
-      background-color: #3a3a3a; /* 更淺、更柔和 */
+      background-color: #3a3a3a;
       color: #f0f0f0;
       font-family: 'Noto Sans TC', sans-serif;
       margin: 0;
@@ -15,8 +15,14 @@
     h1 {
       text-align: center;
       font-size: 2.2rem;
-      padding: 1.5rem 1rem;
+      padding: 1.5rem 1rem 0.5rem;
       color: #ffffff;
+    }
+    .user-info {
+      text-align: center;
+      font-size: 1.1rem;
+      padding-bottom: 1rem;
+      color: #ccc;
     }
     .button-container {
       display: grid;
@@ -53,6 +59,8 @@
 </head>
 <body>
   <h1>超度報名主頁</h1>
+  <div class="user-info" id="userInfo"></div>
+
   <div class="button-container">
     <a href="ancestor.html" class="nav-button">祖先超度</a>
     <a href="infant.html" class="nav-button">水子靈超度</a>
@@ -61,8 +69,23 @@
     <a href="earthgod.html" class="nav-button">地基主 / 土地公</a>
     <a href="preview.html" class="nav-button">預覽 / 確認送出</a>
   </div>
+
   <footer>
     © 2025 超度報名系統 敬啟
   </footer>
+
+  <script>
+    const phone = localStorage.getItem("userPhone");
+    const name = localStorage.getItem("userName");
+    const address = localStorage.getItem("userAddress");
+
+    if (!phone || !name || !address) {
+      alert("請先填寫報名資訊！");
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("userInfo").innerHTML =
+        `📱 手機號碼：${phone}｜🙏 陽上報恩人：${name}｜🏠 陽上地址：${address}`;
+    }
+  </script>
 </body>
 </html>
