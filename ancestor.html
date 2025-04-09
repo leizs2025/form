@@ -1,1 +1,154 @@
-<h2>ancestor 表單</h2><p>這是 ancestor 表單內容。</p>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>祖先超度表單</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        background-color: #111;
+        color: #f5f5f5;
+        font-family: 'Noto Sans TC', sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      h1 {
+        text-align: center;
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+      }
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: none;
+        background-color: #222;
+        color: #fff;
+      }
+      button {
+        background-color: #444;
+        color: #fff;
+        padding: 0.75rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-right: 0.5rem;
+        font-size: 1rem;
+      }
+      .buttons {
+        text-align: center;
+        margin-top: 2rem;
+      }
+      .amount {
+        text-align: right;
+        font-weight: bold;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>祖先超度表單</h1>
+
+      <form id="ancestorForm">
+        <div class="form-group">
+          <label for="yangShang">陽上報恩人姓名</label>
+          <input type="text" id="yangShang" name="yangShang" required />
+        </div>
+
+        <div class="form-group">
+          <label for="ancestorName">祖先／亡靈姓名</label>
+          <input type="text" id="ancestorName" name="ancestorName" required />
+        </div>
+
+        <div class="form-group">
+          <label for="place">安奉／安葬地點</label>
+          <input type="text" id="place" name="place" />
+        </div>
+
+        <div class="form-group">
+          <label for="token">超度令牌（5元）</label>
+          <input type="number" id="token" name="token" min="0" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="boat">法船配套（30元）</label>
+          <input type="number" id="boat" name="boat" min="0" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="lotus">蓮花（6元）</label>
+          <input type="number" id="lotus" name="lotus" min="0" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="gold3">紙金3（3元）</label>
+          <input type="number" id="gold3" name="gold3" min="0" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="gold6">紙金6（6元）</label>
+          <input type="number" id="gold6" name="gold6" min="0" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="gold27">紙金27（27元）</label>
+          <input type="number" id="gold27" name="gold27" min="0" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="combo">配套令牌</label>
+          <input type="text" id="combo" name="combo" placeholder="備註或配套令牌" />
+        </div>
+
+        <div class="amount" id="totalAmount">總金額：0 元</div>
+
+        <div class="buttons">
+          <button type="button" onclick="calculateAmount()">計算金額</button>
+          <button type="submit">提交表單</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const prices = {
+        token: 5,
+        boat: 30,
+        lotus: 6,
+        gold3: 3,
+        gold6: 6,
+        gold27: 27
+      };
+
+      function calculateAmount() {
+        let total = 0;
+        for (let key in prices) {
+          const quantity = parseInt(document.getElementById(key).value || 0);
+          total += prices[key] * quantity;
+        }
+        document.getElementById("totalAmount").innerText = `總金額：${total} 元`;
+      }
+
+      document.getElementById("ancestorForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        calculateAmount();
+        alert("表單已提交！（實際部署時將送至後端）");
+        // 這裡可以用 fetch(...) 將資料傳給 Google Apps Script or Firebase
+      });
+    </script>
+  </body>
+</html>
