@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>地基主 / 土地公超度</title>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      padding: 1rem;
+      background-color: #3a3a3a;
+      color: #f0f0f0;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .entry {
+      background: #4a4a4a;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #888;
+      border-radius: 0.5rem;
+      background: #fff;
+      color: #333;
+      box-sizing: border-box;
+    }
+    button {
+      background: #555;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      margin: 0.5rem 0.25rem;
+      border-radius: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #666;
+    }
+    .danger {
+      background: #b23c3c;
+    }
+    .btn-back {
+      display: block;
+      text-align: center;
+      margin: 2rem auto 0;
+      font-size: 1rem;
+      background: #888;
+      color: white;
+      border-radius: 1rem;
+      padding: 0.6rem 1.2rem;
+      width: fit-content;
+    }
+    .btn-back:hover {
+      background: #aaa;
+    }
+    .center-buttons {
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>超度報名表單</h1>
+<h2>地基主 / 土地公超度</h2>
+
+<div id="entries"></div>
+
+<div class="center-buttons">
+  <button onclick="addEntry()">➕ 新增一位</button>
+  <button onclick="previewAndSubmit()">📋 預覽並提交</button>
+</div>
+
+<h2 id="totalDisplay">總金額：0 元</h2>
+
+<button class="btn-back" onclick="goBack()">⬅️ 回主入口</button>
+
+<script>
+let entries = [];
+
+function addEntry(data = {}) {
+  if (entries.length >= 2) return alert("最多可填寫 2 位");
+
+  const index = entries.length;
+  const container = document.createElement("div");
+  container.className = "entry";
+  container.dataset.index = index;
+
+  container.innerHTML = `
+    <label>地址：</label>
+    <input type="text" class="yang-input" value="${data.yang || ''}" />
+
+    <label>超度令牌 (5元/份)：</label>
+    <input type="number" class="token-input" min="0" value="${data.token || ''}" oninput="updateTotal()" />
+
+    <label>法船配套 (30元/份)：</label>
+    <input type="number" class="boat-input" min="0" value="${data.boat || ''}" oninput="updateTotal()" />
+
+    <label>蓮花 (6元/份)：</label>
+    <input type="number" class="lotus-input" min="0" value="${data.lotus || ''}" oninput="updateTotal()" />
+
+    <label>紙金3 (3元/份)：</label>
+    <input type="number" class="paper3-input" min="0" value="${data.paper3 || ''}" oninput="updateTotal()" />
+
+    <label>紙金6 (6元/份)：</label>
+    <input type="number" class="paper6-input" min="0" value="${data.paper6 || ''}" oninput="updateTotal()" />
+
+    <label>紙金27 (27元/份)：</label>
+    <input type="number" class="paper27-input" min="0" value="${data.paper27 || ''}" oninput="updateTotal()" />
+
+    <label>配套備註：</label>
+    <input type="text" class="extra-input" value="${data.extra || ''}" />
+
+    ${index > 0 ? `<button class="danger" onclick="removeEntry(${index})">🗑️ 刪除此位</button>` : ''}
+  `;
+
+  document.getElementById("entries").appendChild(container);
+  entries.push(container);
+  updateTotal();
+}
+
+function removeEntry(index) {
+  entries[index].remove();
+  entries.splice(index, 1);
+  updateTotal();
+}
+
+function updateTotal() {
+  let subtotal = 0;
+  for (let container of entries) {
+    const getValue = (cls, unit) => {
+      const val = Number(container.querySelector(`.${cls}`).value || 0);
+      return val * unit;
+    };
+    subtotal += getValue("token-input", 5);
+    subtotal += getValue("boat-input", 30);
+    subtotal += getValue("lotus-input", 6);
+    subtotal += getValue("paper3-input", 3);
+    subtotal += getValue("paper6-input", 6);
+    subtotal += getValue("paper27-input", 27);
+  }
+  document.getElementById("totalDisplay").innerText = `總金額：${subtotal} 元`;
+}
+
+function previewAndSubmit() {
+  const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
+
+  const groundData = entries.map(container => ({
+    yang: container.querySelector(".yang-input").value,
+    token: container.querySelector(".token-input").value,
+    boat: container.querySelector(".boat-input").value,
+    lotus: container.querySelector(".lotus-input").value,
+    paper3: container.querySelector(".paper3-input").value,
+    paper6: container.querySelector(".paper6-input").value,
+    paper27: container.querySelector(".paper27-input").value,
+    extra: container.querySelector(".extra-input").value,
+  }));
+
+  stored.ground = groundData;
+  localStorage.setItem("allFormData", JSON.stringify(stored));
+
+  window.location.href = "preview.html";
+}
+
+function goBack() {
+  window.location.href = "main.html";
+}
+
+window.onload = () => {
+  addEntry();
+};
+</script>
+
+</body>
+</html>
