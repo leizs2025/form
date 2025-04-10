@@ -3,85 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>祖先超度表單</title>
+  <title>超度報名表單</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Noto Sans TC', sans-serif;
       padding: 1rem;
-      background: #f5f5f5;
+      background-color: #3a3a3a;
+      color: #f0f0f0;
     }
     h1, h2 {
       text-align: center;
       margin-bottom: 0.5rem;
     }
     .entry {
-      background: white;
+      background: #4a4a4a;
       border-radius: 1rem;
       padding: 1rem;
       margin-bottom: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
     }
     label {
       display: block;
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
     }
     input {
       width: 100%;
-      padding: 0.5rem;
+      padding: 0.6rem;
       font-size: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid #888;
       border-radius: 0.5rem;
+      background: #fff;
+      color: #333;
       box-sizing: border-box;
     }
     button {
-      background: #495057;
+      background: #555;
       color: white;
       border: none;
-      padding: 0.6rem 1.2rem;
+      padding: 0.8rem 1.2rem;
       font-size: 1rem;
       margin: 0.5rem 0.25rem;
       border-radius: 1rem;
       cursor: pointer;
+      width: auto;
     }
     button:hover {
-      opacity: 0.9;
+      background: #666;
     }
     .danger {
-      background: #dc3545;
-    }
-    .preview {
-      white-space: pre-wrap;
-      background: #eee;
-      padding: 1rem;
-      border-radius: 1rem;
+      background: #b23c3c;
     }
     .btn-back {
       display: block;
       text-align: center;
       margin: 2rem auto 0;
       font-size: 1rem;
+      background: #888;
+      color: white;
+      border-radius: 1rem;
+      padding: 0.6rem 1.2rem;
+      width: fit-content;
+    }
+    .btn-back:hover {
+      background: #aaa;
+    }
+    .center-buttons {
+      text-align: center;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-<h1>祖先超度表單</h1>
-<h2>報名資料填寫</h2>
+<h1>超度報名表單</h1>
+<h2>祖先超度資料填寫</h2>
 
 <div id="entries"></div>
 
-<div style="text-align:center;">
+<div class="center-buttons">
   <button onclick="addEntry()">➕ 新增一位祖先</button>
-  <button onclick="showPreview()">📋 預覽資料</button>
+  <button onclick="previewAndSubmit()">📋 預覽並提交</button>
 </div>
 
 <h2 id="totalDisplay">總金額：0 元</h2>
-<div id="preview" class="preview" style="display:none;"></div>
 
 <button class="btn-back" onclick="goBack()">⬅️ 回主入口</button>
 
 <script>
 let entries = [];
+
 function addEntry(data = {}) {
   if (entries.length >= 8) return alert("最多可填寫 8 位");
 
@@ -152,51 +163,36 @@ function updateTotal() {
   document.getElementById("totalDisplay").innerText = `總金額：${subtotal} 元`;
 }
 
-function showPreview() {
-  let text = "";
-  let all = [];
+function previewAndSubmit() {
+  const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
 
-  entries.forEach((container, i) => {
-    const yang = container.querySelector(".yang-input").value;
-    const name = container.querySelector(".name-input").value;
-    const location = container.querySelector(".location-input").value;
-    const token = container.querySelector(".token-input").value || 0;
-    const boat = container.querySelector(".boat-input").value || 0;
-    const lotus = container.querySelector(".lotus-input").value || 0;
-    const paper3 = container.querySelector(".paper3-input").value || 0;
-    const paper6 = container.querySelector(".paper6-input").value || 0;
-    const paper27 = container.querySelector(".paper27-input").value || 0;
-    const extra = container.querySelector(".extra-input").value;
+  const ancestorData = entries.map(container => ({
+    yang: container.querySelector(".yang-input").value,
+    name: container.querySelector(".name-input").value,
+    location: container.querySelector(".location-input").value,
+    token: container.querySelector(".token-input").value,
+    boat: container.querySelector(".boat-input").value,
+    lotus: container.querySelector(".lotus-input").value,
+    paper3: container.querySelector(".paper3-input").value,
+    paper6: container.querySelector(".paper6-input").value,
+    paper27: container.querySelector(".paper27-input").value,
+    extra: container.querySelector(".extra-input").value,
+  }));
 
-    text += `第 ${i + 1} 位：\n`;
-    text += `陽上報恩人：${yang}\n`;
-    text += `祖先姓名：${name}\n`;
-    text += `安奉地點：${location}\n`;
-    text += `超度令牌：${token}，法船：${boat}，蓮花：${lotus}\n`;
-    text += `紙金3：${paper3}，紙金6：${paper6}，紙金27：${paper27}\n`;
-    text += `備註：${extra}\n\n`;
+  stored.ancestor = ancestorData;
+  localStorage.setItem("allFormData", JSON.stringify(stored));
 
-    all.push({ token, boat, lotus, paper3, paper6, paper27 });
-  });
-
-  const sum = (field) => all.reduce((acc, obj) => acc + Number(obj[field] || 0), 0);
-
-  text += `總結：\n`;
-  text += `超度令牌：${sum("token")}，法船：${sum("boat")}，蓮花：${sum("lotus")}\n`;
-  text += `紙金3：${sum("paper3")}，紙金6：${sum("paper6")}，紙金27：${sum("paper27")}\n`;
-
-  document.getElementById("preview").style.display = "block";
-  document.getElementById("preview").innerText = text;
+  window.location.href = "preview.html";
 }
+
 
 function goBack() {
-  const mainNav = parent?.document?.querySelector?.('nav button[data-target="form-ancestor"]');
-  if (mainNav) mainNav.click();
+  window.location.href = "main.html";
 }
-</script>
 
-<script>
+window.onload = () => {
   addEntry();
+};
 </script>
 
 </body>
