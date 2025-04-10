@@ -78,25 +78,35 @@
   <div class="footer">© 2025 超度報名系統 敬啟</div>
 
   <script>
-    document.getElementById("entryForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const phone = document.getElementById("phone").value.trim();
-      const name = document.getElementById("name").value.trim();
-      const address = document.getElementById("address").value.trim();
+ document.getElementById("entryForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const phone = document.getElementById("phone").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const address = document.getElementById("address").value.trim();
 
-      if (!phone || !name || !address) {
-        alert("請完整填寫所有資料！");
-        return;
-      }
+  if (!phone || !name || !address) {
+    alert("請完整填寫所有資料！");
+    return;
+  }
 
-      // 存到 localStorage
-      localStorage.setItem("userPhone", phone);
-      localStorage.setItem("userName", name);
-      localStorage.setItem("userAddress", address);
+  // ✅ 存成統一格式 allData
+  const allData = {
+    phone,
+    name,
+    address,
+    ancestor: [],
+    baby: [],
+    enemy: [],
+    past: [],
+    ground: []
+  };
 
-      // 跳轉到門面頁
-      window.location.href = "main.html";
-    });
+  localStorage.setItem("allData", JSON.stringify(allData));
+
+  // ✅ 跳轉至 main.html
+  window.location.href = "main.html";
+});
+
   </script>
 </body>
 </html>
