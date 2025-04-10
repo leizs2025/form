@@ -96,17 +96,19 @@
   <a class="back-button" href="main.html">← 返回填寫其他項目</a>
 
   <script>
-    const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
+    
 
-    // preview.html 里面加这个判断
-const phone = localStorage.getItem("userPhone");
-const name = localStorage.getItem("userName");
-const address = localStorage.getItem("userAddress");
+const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
+const phone = allData.phone || "";
+const name = allData.name || "";
+const address = allData.address || "";
 
+// 防呆檢查
 if (!phone || !name || !address) {
-  alert("請先填寫基本資訊！");
+  alert("請先填寫基本資料！");
   window.location.href = "index.html";
 }
+
 
 
     // ✅ 防呆：基本資料沒填就強制跳回
