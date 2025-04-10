@@ -1,154 +1,203 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>祖先超度表單</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet" />
-    <style>
-      body {
-        background-color: #111;
-        color: #f5f5f5;
-        font-family: 'Noto Sans TC', sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-      h1 {
-        text-align: center;
-        font-size: 1.75rem;
-        margin-bottom: 1rem;
-      }
-      .form-group {
-        margin-bottom: 1.25rem;
-      }
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-      }
-      input,
-      select {
-        width: 100%;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border: none;
-        background-color: #222;
-        color: #fff;
-      }
-      button {
-        background-color: #444;
-        color: #fff;
-        padding: 0.75rem 1.25rem;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-right: 0.5rem;
-        font-size: 1rem;
-      }
-      .buttons {
-        text-align: center;
-        margin-top: 2rem;
-      }
-      .amount {
-        text-align: right;
-        font-weight: bold;
-        margin-top: 1rem;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>祖先超度表單</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>祖先超度表單</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      background: #f5f5f5;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .entry {
+      background: white;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 0.5rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      box-sizing: border-box;
+    }
+    button {
+      background: #495057;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      margin: 0.5rem 0.25rem;
+      border-radius: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .danger {
+      background: #dc3545;
+    }
+    .preview {
+      white-space: pre-wrap;
+      background: #eee;
+      padding: 1rem;
+      border-radius: 1rem;
+    }
+    .btn-back {
+      display: block;
+      text-align: center;
+      margin: 2rem auto 0;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
 
-      <form id="ancestorForm">
-        <div class="form-group">
-          <label for="yangShang">陽上報恩人姓名</label>
-          <input type="text" id="yangShang" name="yangShang" required />
-        </div>
+<h1>祖先超度表單</h1>
+<h2>報名資料填寫</h2>
 
-        <div class="form-group">
-          <label for="ancestorName">祖先／亡靈姓名</label>
-          <input type="text" id="ancestorName" name="ancestorName" required />
-        </div>
+<div id="entries"></div>
 
-        <div class="form-group">
-          <label for="place">安奉／安葬地點</label>
-          <input type="text" id="place" name="place" />
-        </div>
+<div style="text-align:center;">
+  <button onclick="addEntry()">➕ 新增一位祖先</button>
+  <button onclick="showPreview()">📋 預覽資料</button>
+</div>
 
-        <div class="form-group">
-          <label for="token">超度令牌（5元）</label>
-          <input type="number" id="token" name="token" min="0" value="0" />
-        </div>
+<h2 id="totalDisplay">總金額：0 元</h2>
+<div id="preview" class="preview" style="display:none;"></div>
 
-        <div class="form-group">
-          <label for="boat">法船配套（30元）</label>
-          <input type="number" id="boat" name="boat" min="0" value="0" />
-        </div>
+<button class="btn-back" onclick="goBack()">⬅️ 回主入口</button>
 
-        <div class="form-group">
-          <label for="lotus">蓮花（6元）</label>
-          <input type="number" id="lotus" name="lotus" min="0" value="0" />
-        </div>
+<script>
+let entries = [];
+function addEntry(data = {}) {
+  if (entries.length >= 8) return alert("最多可填寫 8 位");
 
-        <div class="form-group">
-          <label for="gold3">紙金3（3元）</label>
-          <input type="number" id="gold3" name="gold3" min="0" value="0" />
-        </div>
+  const index = entries.length;
+  const container = document.createElement("div");
+  container.className = "entry";
+  container.dataset.index = index;
 
-        <div class="form-group">
-          <label for="gold6">紙金6（6元）</label>
-          <input type="number" id="gold6" name="gold6" min="0" value="0" />
-        </div>
+  container.innerHTML = `
+    <label>陽上報恩人：</label>
+    <input type="text" class="yang-input" value="${data.yang || ''}" />
 
-        <div class="form-group">
-          <label for="gold27">紙金27（27元）</label>
-          <input type="number" id="gold27" name="gold27" min="0" value="0" />
-        </div>
+    <label>祖先姓名：</label>
+    <input type="text" class="name-input" value="${data.name || ''}" />
 
-        <div class="form-group">
-          <label for="combo">配套令牌</label>
-          <input type="text" id="combo" name="combo" placeholder="備註或配套令牌" />
-        </div>
+    <label>安奉地點：</label>
+    <input type="text" class="location-input" value="${data.location || ''}" />
 
-        <div class="amount" id="totalAmount">總金額：0 元</div>
+    <label>超度令牌 (5元/份)：</label>
+    <input type="number" class="token-input" min="0" value="${data.token || ''}" oninput="updateTotal()" />
 
-        <div class="buttons">
-          <button type="button" onclick="calculateAmount()">計算金額</button>
-          <button type="submit">提交表單</button>
-        </div>
-      </form>
-    </div>
+    <label>法船 (30元/份)：</label>
+    <input type="number" class="boat-input" min="0" value="${data.boat || ''}" oninput="updateTotal()" />
 
-    <script>
-      const prices = {
-        token: 5,
-        boat: 30,
-        lotus: 6,
-        gold3: 3,
-        gold6: 6,
-        gold27: 27
-      };
+    <label>蓮花 (6元/份)：</label>
+    <input type="number" class="lotus-input" min="0" value="${data.lotus || ''}" oninput="updateTotal()" />
 
-      function calculateAmount() {
-        let total = 0;
-        for (let key in prices) {
-          const quantity = parseInt(document.getElementById(key).value || 0);
-          total += prices[key] * quantity;
-        }
-        document.getElementById("totalAmount").innerText = `總金額：${total} 元`;
-      }
+    <label>紙金3 (3元/份)：</label>
+    <input type="number" class="paper3-input" min="0" value="${data.paper3 || ''}" oninput="updateTotal()" />
 
-      document.getElementById("ancestorForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        calculateAmount();
-        alert("表單已提交！（實際部署時將送至後端）");
-        // 這裡可以用 fetch(...) 將資料傳給 Google Apps Script or Firebase
-      });
-    </script>
-  </body>
+    <label>紙金6 (6元/份)：</label>
+    <input type="number" class="paper6-input" min="0" value="${data.paper6 || ''}" oninput="updateTotal()" />
+
+    <label>紙金27 (27元/份)：</label>
+    <input type="number" class="paper27-input" min="0" value="${data.paper27 || ''}" oninput="updateTotal()" />
+
+    <label>配套備註：</label>
+    <input type="text" class="extra-input" value="${data.extra || ''}" />
+
+    ${index > 0 ? `<button class="danger" onclick="removeEntry(${index})">🗑️ 刪除此位</button>` : ''}
+  `;
+
+  document.getElementById("entries").appendChild(container);
+  entries.push(container);
+  updateTotal();
+}
+
+function removeEntry(index) {
+  entries[index].remove();
+  entries.splice(index, 1);
+  updateTotal();
+}
+
+function updateTotal() {
+  let subtotal = 0;
+  for (let container of entries) {
+    const getValue = (cls, unit) => {
+      const val = Number(container.querySelector(`.${cls}`).value || 0);
+      return val * unit;
+    };
+    subtotal += getValue("token-input", 5);
+    subtotal += getValue("boat-input", 30);
+    subtotal += getValue("lotus-input", 6);
+    subtotal += getValue("paper3-input", 3);
+    subtotal += getValue("paper6-input", 6);
+    subtotal += getValue("paper27-input", 27);
+  }
+  document.getElementById("totalDisplay").innerText = `總金額：${subtotal} 元`;
+}
+
+function showPreview() {
+  let text = "";
+  let all = [];
+
+  entries.forEach((container, i) => {
+    const yang = container.querySelector(".yang-input").value;
+    const name = container.querySelector(".name-input").value;
+    const location = container.querySelector(".location-input").value;
+    const token = container.querySelector(".token-input").value || 0;
+    const boat = container.querySelector(".boat-input").value || 0;
+    const lotus = container.querySelector(".lotus-input").value || 0;
+    const paper3 = container.querySelector(".paper3-input").value || 0;
+    const paper6 = container.querySelector(".paper6-input").value || 0;
+    const paper27 = container.querySelector(".paper27-input").value || 0;
+    const extra = container.querySelector(".extra-input").value;
+
+    text += `第 ${i + 1} 位：\n`;
+    text += `陽上報恩人：${yang}\n`;
+    text += `祖先姓名：${name}\n`;
+    text += `安奉地點：${location}\n`;
+    text += `超度令牌：${token}，法船：${boat}，蓮花：${lotus}\n`;
+    text += `紙金3：${paper3}，紙金6：${paper6}，紙金27：${paper27}\n`;
+    text += `備註：${extra}\n\n`;
+
+    all.push({ token, boat, lotus, paper3, paper6, paper27 });
+  });
+
+  const sum = (field) => all.reduce((acc, obj) => acc + Number(obj[field] || 0), 0);
+
+  text += `總結：\n`;
+  text += `超度令牌：${sum("token")}，法船：${sum("boat")}，蓮花：${sum("lotus")}\n`;
+  text += `紙金3：${sum("paper3")}，紙金6：${sum("paper6")}，紙金27：${sum("paper27")}\n`;
+
+  document.getElementById("preview").style.display = "block";
+  document.getElementById("preview").innerText = text;
+}
+
+function goBack() {
+  const mainNav = parent?.document?.querySelector?.('nav button[data-target="form-ancestor"]');
+  if (mainNav) mainNav.click();
+}
+</script>
+
+<script>
+  addEntry();
+</script>
+
+</body>
 </html>
