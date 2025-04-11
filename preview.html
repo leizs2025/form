@@ -164,7 +164,7 @@
   
     const itemLabelsMap = {
       ancestor: {
-        yang: "陽上對象",
+        ancestorName: "祖先/亡灵名字",
         placeType: "種類",
         location: "安奉地點",
         token: "超度令牌",
@@ -304,19 +304,22 @@
       fill(payload.past, 4);
       fill(payload.ground, 3);
   
-      try {
-        const res = await fetch("https://form.gealarm2012.workers.dev/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-        alert("已送出報名資料，感謝您！");
-        window.location.href = "index.html";
-      } catch (err) {
-        alert("送出失敗，請稍後再試");
-      }
-    });
+ try {
+  const res = await fetch("https://form.gealarm2012.workers.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  const result = await res.text();  // 改這裡
+  if (result.trim() === "成功") {
+    alert("已送出報名資料，感謝您！");
+    window.location.href = "index.html";
+  } else {
+    alert("送出失敗，請稍後再試");
+  }
+} catch (err) {
+  alert("送出錯誤：" + err.message);
+}
   </script>
     
   
