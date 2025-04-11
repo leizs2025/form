@@ -162,7 +162,7 @@ function updateTotal() {
 
 function previewAndSubmit() {
   const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
-
+//  const basic = JSON.parse(localStorage.getItem("basicFormData") || "{}"); // ← 這行新增
   const chanshenData = entries.map(container => ({
     yang: container.querySelector(".yang-input").value,
     location: container.querySelector(".location-input").value,
