@@ -115,7 +115,6 @@ function addEntry(data = {}) {
   container.innerHTML = `
     <label>祖先/亡灵 姓名：</label>
     <input type="text" class="ancestorName-input" value="${data.ancestorName || ''}" />
-
     <label>安葬/安奉地點：</label>
     <select class="form-input placeType-select">
     <option value="">請選擇</option>
@@ -183,8 +182,7 @@ function updateTotal() {
 
 function previewAndSubmit() {
   const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
-  //const basic = JSON.parse(localStorage.getItem("basicFormData") || "{}"); // ← 這行新增
-
+  /
   // ✅ 保留通用资料（如果前面有写进去就不会不见）
   const commonFields = {
     phone: stored.phone || "",
@@ -195,7 +193,7 @@ function previewAndSubmit() {
   const ancestorData = entries.map(container => {
   const placeTypeValue = container.querySelector(".placeType-select").value;
   return {
-    yang: container.querySelector(".ancestorName-input").value,
+    ancestorName: container.querySelector(".ancestorName-input").value,
     placeType: placeTypeValue,
     location: container.querySelector(".location-input").value,
     token: container.querySelector(".token-input").value,
