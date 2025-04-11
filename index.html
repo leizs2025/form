@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>超度報名入口</title>
+  <style>
+    body {
+      background-color: #3a3a3a;
+      color: #f0f0f0;
+      font-family: 'Noto Sans TC', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-top: 1.2rem;
+      font-size: 1.1rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      margin-top: 0.5rem;
+      box-sizing: border-box;
+      background-color: #fefefe;
+      color: #333;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 1rem;
+      width: 100%;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 12px;
+      background-color: #555;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #666;
+    }
+    .footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #ccc;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>超度報名資訊</h1>
+  <form id="entryForm">
+    <label for="phone">手機號碼：</label>
+    <input type="tel" id="phone" required />
+
+    <label for="name">陽上報恩人：</label>
+    <input type="text" id="name" required />
+
+    <label for="address">陽上地址：</label>
+    <input type="text" id="address" required />
+
+    <button type="submit">進入選單</button>
+  </form>
+
+  <div class="footer">© 2025 超度報名系統 敬啟</div>
+
+  <script>
+ document.getElementById("entryForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const phone = document.getElementById("phone").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const address = document.getElementById("address").value.trim();
+
+  if (!phone || !name || !address) {
+    alert("請完整填寫所有資料！");
+    return;
+  }
+
+  // ✅ 存成統一格式 allData
+  const allData = {
+    phone,
+    name,
+    address,
+    ancestor: [],
+    baby: [],
+    enemy: [],
+    past: [],
+    ground: []
+  };
+
+  localStorage.setItem("allFormData", JSON.stringify(allData));
+
+  // ✅ 跳轉至 main.html
+  window.location.href = "main.html";
+});
+
+  </script>
+</body>
+</html>
