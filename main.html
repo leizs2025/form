@@ -4,12 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>超度報名主頁</title>
-  <style><!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>超度報名主頁</title>
   <style>
     body {
       background-color: #3a3a3a;
@@ -110,83 +104,5 @@
     document.getElementById("mainName").value = allData.name;
     document.getElementById("mainAddress").value = allData.address;
   </script>
-</body>
-</html>
-
-    body {
-      background-color: #3a3a3a;
-      color: #f0f0f0;
-      font-family: 'Noto Sans TC', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.2rem;
-      padding: 1.5rem 1rem;
-      color: #ffffff;
-    }
-    .button-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.2rem;
-      padding: 2rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .nav-button {
-      background: #555;
-      border: 2px solid #888;
-      color: #fff;
-      font-size: 1.2rem;
-      padding: 1.2rem;
-      text-align: center;
-      border-radius: 14px;
-      transition: all 0.3s;
-      text-decoration: none;
-      display: block;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
-    .nav-button:hover {
-      background-color: #666;
-      border-color: #bbb;
-    }
-    footer {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #ccc;
-      margin: 3rem 0 1rem;
-    }
-    .info-box {
-      text-align: center;
-      font-size: 1.1rem;
-      margin-top: 1rem;
-      color: #ffef99;
-    }
-  </style>
-</head>
-<body>
-  <h1>超度報名主頁</h1>
-
-  <p id="displayInfo" class="info-box"></p>
-
-  <div class="button-container">
-    <a href="ancestor.html" class="nav-button">祖先超度</a>
-    <a href="baby.html" class="nav-button">水子靈超度</a>
-    <a href="enemy.html" class="nav-button">冤親債主 / 缠身灵超度</a>
-    <a href="past.html" class="nav-button">前世今生所殺生靈</a>
-    <a href="ground.html" class="nav-button">地基主 / 土地公</a>
-    <a href="preview.html" class="nav-button">預覽 / 確認送出</a>
-  </div>
-  <footer>
-    © 2025 超度報名系統 敬啟
-  </footer>
-
-  <!-- Hidden inputs to store info -->
-  <input type="hidden" id="mainPhone" name="手機號碼" />
-  <input type="hidden" id="mainName" name="陽上報恩人" />
-  <input type="hidden" id="mainAddress" name="陽上地址" />
-
-  <script src="auto-fill.js"></script>
 </body>
 </html>
