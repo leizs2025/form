@@ -88,12 +88,12 @@
 <body>
 
 <h1>超度報名表單</h1>
-<h2>祖先超度資料填寫</h2>
+<h2>祖先/亡灵超度資料填寫</h2>
 
 <div id="entries"></div>
 
 <div class="center-buttons">
-  <button onclick="addEntry()">➕ 新增一位祖先</button>
+  <button onclick="addEntry()">➕ 新增一位</button>
   <button onclick="previewAndSubmit()">📋 預覽並提交</button>
 </div>
 
@@ -115,7 +115,7 @@ function addEntry(data = {}) {
   container.innerHTML = `
     <label>祖先/亡灵 姓名：</label>
     <input type="text" class="ancestorName-input" value="${data.ancestorName || ''}" />
-    <label>安葬/安奉地點：</label>
+    <label>选择安葬/安奉地點：</label>
     <select class="form-input placeType-select">
     <option value="">請選擇</option>
     <option value="地藏殿牌位">地藏殿牌位</option>
@@ -125,7 +125,7 @@ function addEntry(data = {}) {
     <option value="其他">其他</option>
     </select>
 
-    <label>安奉地點：</label>
+    <label>详细地點：</label>
     <input type="text" class="location-input" value="${data.location || ''}" />
 
     <label>超度令牌 (5元/份)：</label>
