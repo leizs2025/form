@@ -77,20 +77,23 @@
 
   <div class="footer">© 2025 超度報名系統 敬啟</div>
 
- <script>
-document.getElementById("startButton").addEventListener("click", () => {
-  const name = document.getElementById("name").value.trim();
+ 
+  <script>
+ document.getElementById("entryForm").addEventListener("submit", function (e) {
+  e.preventDefault();
   const phone = document.getElementById("phone").value.trim();
+  const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
 
-  if (!name || !phone || !address) {
-    alert("請填寫所有欄位");
+  if (!phone || !name || !address) {
+    alert("請完整填寫所有資料！");
     return;
   }
 
+  // ✅ 存成統一格式 allData
   const allData = {
-    name,
     phone,
+    name,
     address,
     ancestor: [],
     baby: [],
@@ -100,9 +103,26 @@ document.getElementById("startButton").addEventListener("click", () => {
   };
 
   localStorage.setItem("allFormData", JSON.stringify(allData));
+
+  // ✅ 跳轉至 main.html
+  window.location.href = "main.html";
+  const allData = {
+    phone,
+    name,
+    address,
+    ancestor: [],
+    baby: [],
+    enemy: [],
+    past: [],
+    ground: []
+  };
+
+  localStorage.setItem("allFormData", JSON.stringify(allData));
+
+  // ✅ 跳轉至 main.html
   window.location.href = "main.html";
 });
-</script>
 
+  </script>
 </body>
 </html>
