@@ -147,7 +147,7 @@
   <a class="back-button" href="main.html">← 返回填寫其他項目</a>
 
   <script>
-    const allData = JSON.parse(localStorage.getItem("allData") || "{}");
+    const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
   
     // ✅ 防呆：缺基本資料就導回 index
     if (!allData.phone || !allData.name || !allData.address) {
