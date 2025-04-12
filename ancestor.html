@@ -182,7 +182,7 @@ function updateTotal() {
 
 function previewAndSubmit() {
   const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
-  /
+  
   // ✅ 保留通用资料（如果前面有写进去就不会不见）
   const commonFields = {
     phone: stored.phone || "",
