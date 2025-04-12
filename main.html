@@ -84,7 +84,7 @@
   <input type="hidden" id="mainAddress" name="陽上地址" />
 
   <script>
-    const allData = JSON.parse(localStorage.getItem("allData") || "{}");
+    const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
 
     // 防呆：如果基本資料不存在，就跳回 index
     if (!allData.phone || !allData.name || !allData.address) {
