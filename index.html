@@ -105,6 +105,10 @@
 
   // ✅ 跳轉至 main.html
   window.location.href = "main.html";
+    // 👉 加个延迟，等 localStorage 写入完
+  setTimeout(() => {
+    window.location.href = "main.html";
+  }, 100);
 });
 
   </script>
