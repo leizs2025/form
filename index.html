@@ -77,22 +77,20 @@
 
   <div class="footer">© 2025 超度報名系統 敬啟</div>
 
-  <script>
- document.getElementById("entryForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-  const phone = document.getElementById("phone").value.trim();
+ <script>
+document.getElementById("startButton").addEventListener("click", () => {
   const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
   const address = document.getElementById("address").value.trim();
 
-  if (!phone || !name || !address) {
-    alert("請完整填寫所有資料！");
+  if (!name || !phone || !address) {
+    alert("請填寫所有欄位");
     return;
   }
 
-  // ✅ 存成統一格式 allData
   const allData = {
-    phone,
     name,
+    phone,
     address,
     ancestor: [],
     baby: [],
@@ -102,11 +100,9 @@
   };
 
   localStorage.setItem("allFormData", JSON.stringify(allData));
-
-  // ✅ 跳轉至 main.html
   window.location.href = "main.html";
 });
+</script>
 
-  </script>
 </body>
 </html>
