@@ -78,63 +78,55 @@
       margin-top: 1rem;
     }
     @media screen and (max-width: 600px) {
-  body {
-    padding: 1rem;
-    font-size: 0.95rem;
-  }
-
-  h1 {
-    font-size: 1.4rem;
-    text-align: center;
-  }
-
-  .section {
-    padding: 1rem;
-    margin: 0.5rem 0;
-  }
-
-  .entry {
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .field {
-    margin: 0.4rem 0;
-  }
-
-  .field label {
-    display: block;
-    margin-bottom: 0.2rem;
-    font-weight: bold;
-    font-size: 0.9rem;
-  }
-
-  .field span {
-    display: block;
-    font-size: 0.95rem;
-  }
-
-  .action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin-top: 1.5rem;
-  }
-
-  .action-buttons button {
-    font-size: 1rem;
-    padding: 0.6rem;
-    width: 100%;
-  }
-}
-
+      body {
+        padding: 1rem;
+        font-size: 0.95rem;
+      }
+      h1 {
+        font-size: 1.4rem;
+        text-align: center;
+      }
+      .section {
+        padding: 1rem;
+        margin: 0.5rem 0;
+      }
+      .entry {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .field {
+        margin: 0.4rem 0;
+      }
+      .field label {
+        display: block;
+        margin-bottom: 0.2rem;
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+      .field span {
+        display: block;
+        font-size: 0.95rem;
+      }
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-top: 1.5rem;
+      }
+      .action-buttons button {
+        font-size: 1rem;
+        padding: 0.6rem;
+        width: 100%;
+      }
+    }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <h1>預覽與確認送出</h1>
 
   <h2>基本資料確認</h2>
-  <div class="preview-box">
+  <div class="preview-box" id="previewBasic">
     <div class="item">陽上報恩人：<span id="previewName"></span></div>
     <div class="item">手機號碼：<span id="previewPhone"></span></div>
     <div class="item">地址：<span id="previewAddress"></span></div>
@@ -143,91 +135,36 @@
   <div id="previewArea"></div>
   <div id="totalSummary">赞助總金額：0 元</div>
 
+  <button id="downloadPdfBtn">下載 PDF 預覽</button>
   <button id="submitButton">確認送出</button>
   <a class="back-button" href="main.html">← 返回填寫其他項目</a>
 
   <script>
     const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
-  
-    // ✅ 防呆：缺基本資料就導回 index
+
     if (!allData.phone || !allData.name || !allData.address) {
       alert("請先填寫基本資料！");
       window.location.href = "index.html";
     }
-  
-    // ✅ 顯示基本資料
+
     document.getElementById("previewName").textContent = allData.name;
     document.getElementById("previewPhone").textContent = allData.phone;
     document.getElementById("previewAddress").textContent = allData.address;
-  
+
     const previewArea = document.getElementById("previewArea");
-  
+
     const itemLabelsMap = {
-      ancestor: {
-        ancestorName: "祖先/亡灵名字",
-        placeType: "種類",
-        location: "安奉地點",
-        token: "超度令牌",
-        boat: "法船配套",
-        lotus: "蓮花",
-        paper3: "纸金 3",
-        paper6: "纸金 6",
-        paper27: "纸金 27",
-        extra: "配套備註",
-      },
-      baby: {
-        yang: "陽上對象",
-        location: "水子靈 蓮位 / 安奉地點",
-        token: "超度令牌",
-        boat: "法船配套",
-        lotus: "蓮花",
-        paper3: "纸金 3",
-        paper6: "纸金 6",
-        paper27: "纸金 27",
-        extra: "配套備註",
-      },
-      enemy: {
-        yang: "陽上對象",
-        location: "超度對象 / 安奉地點",
-        token: "超度令牌",
-        boat: "法船配套",
-        lotus: "蓮花",
-        paper3: "纸金 3",
-        paper6: "纸金 6",
-        paper27: "纸金 27",
-        extra: "配套備註",
-      },
-      past: {
-        yang: "陽上對象",
-        token: "超度令牌",
-        boat: "法船配套",
-        lotus: "蓮花",
-        paper3: "纸金 3",
-        paper6: "纸金 6",
-        paper27: "纸金 27",
-        extra: "配套備註",
-      },
-      ground: {
-        location: "地基主 / 土地公 地址",
-        token: "超度令牌",
-        boat: "法船配套",
-        lotus: "蓮花",
-        paper3: "纸金 3",
-        paper6: "纸金 6",
-        paper27: "纸金 27",
-        extra: "配套備註",
-      }
+      ancestor: { ancestorName: "祖先/亡灵名字", placeType: "種類", location: "安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+      baby: { yang: "陽上對象", location: "水子靈 蓮位 / 安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+      enemy: { yang: "陽上對象", location: "超度對象 / 安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+      past: { yang: "陽上對象", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+      ground: { location: "地基主 / 土地公 地址", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" }
     };
-  
+
     const itemPrices = {
-      token: 5,
-      boat: 30,
-      lotus: 6,
-      paper3: 3,
-      paper6: 6,
-      paper27: 27
+      token: 5, boat: 30, lotus: 6, paper3: 3, paper6: 6, paper27: 27
     };
-  
+
     const sections = [
       { key: "ancestor", label: "祖先超度", count: 8 },
       { key: "baby", label: "水子靈超度", count: 8 },
@@ -235,9 +172,9 @@
       { key: "past", label: "前世今生所殺生靈超度", count: 4 },
       { key: "ground", label: "地基主 / 土地公超度", count: 2 }
     ];
-  
+
     let totalAmount = 0;
-  
+
     const calcSubtotal = (entry) => {
       let sum = 0;
       for (let key in itemPrices) {
@@ -246,40 +183,38 @@
       }
       return sum;
     };
-  
+
     sections.forEach(section => {
       const data = allData[section.key] || [];
       const nonEmpty = data.filter(entry => Object.values(entry).some(v => v));
       if (nonEmpty.length === 0) return;
-  
+
       const title = document.createElement("div");
       title.className = "section-title";
       title.textContent = section.label;
       previewArea.appendChild(title);
-  
- nonEmpty.forEach(row => {
-  const entryBox = document.createElement("div");
-  entryBox.className = "preview-box";
 
-  Object.entries(itemLabelsMap[section.key]).forEach(([fieldKey, label]) => {
-    const value = row[fieldKey];
-    if (value !== undefined && value !== "") {
-      const item = document.createElement("div");
-      item.className = "item";
-      item.textContent = `${label}: ${value}`;
-      entryBox.appendChild(item);
-    }
-  });
+      nonEmpty.forEach(row => {
+        const entryBox = document.createElement("div");
+        entryBox.className = "preview-box";
 
-  previewArea.appendChild(entryBox);
-  totalAmount += calcSubtotal(row);
-});
+        Object.entries(itemLabelsMap[section.key]).forEach(([fieldKey, label]) => {
+          const value = row[fieldKey];
+          if (value !== undefined && value !== "") {
+            const item = document.createElement("div");
+            item.className = "item";
+            item.textContent = `${label}: ${value}`;
+            entryBox.appendChild(item);
+          }
+        });
 
+        previewArea.appendChild(entryBox);
+        totalAmount += calcSubtotal(row);
+      });
     });
-  
+
     document.getElementById("totalSummary").textContent = `總金額：${totalAmount} 元`;
-  
-    // ✅ 點擊送出
+
     document.getElementById("submitButton").addEventListener("click", async () => {
       const payload = {
         timestamp: new Date().toISOString(),
@@ -292,7 +227,7 @@
         past: (allData.past || []).slice(0, 4),
         ground: (allData.ground || []).slice(0, 3),
       };
-  
+
       const fill = (arr, count) => {
         for (let i = 0; i < count; i++) {
           if (!arr[i]) arr[i] = "";
@@ -303,29 +238,50 @@
       fill(payload.enemy, 5);
       fill(payload.past, 4);
       fill(payload.ground, 3);
-  
- try {
-  const res = await fetch("https://form.gealarm2012.workers.dev/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const result = await res.text();  // 改這裡
-  if (result.trim() === "成功") {
-    alert("已送出報名資料，感謝您！");
-    window.location.href = "index.html";
-  } else {
-    alert("送出失敗，請稍後再試");
-  }
-} catch (err) {
-  alert("送出錯誤：" + err.message);
-}
-      });
+
+      try {
+        const res = await fetch("https://form.gealarm2012.workers.dev/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.text();
+        if (result.trim() === "成功") {
+          alert("已送出報名資料，感謝您！");
+          window.location.href = "index.html";
+        } else {
+          alert("送出失敗，請稍後再試");
+        }
+      } catch (err) {
+        alert("送出錯誤：" + err.message);
+      }
+    });
+
+    // ✅ PDF 下載按鈕功能
+    document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+      const container = document.createElement("div");
+
+      const basicInfo = document.getElementById("previewBasic").cloneNode(true);
+      const previewContent = document.getElementById("previewArea").cloneNode(true);
+
+      container.appendChild(basicInfo);
+      container.appendChild(previewContent);
+
+      container.style.padding = "1rem";
+      container.style.backgroundColor = "#fff";
+      container.style.color = "#000";
+      container.style.fontFamily = "'Noto Sans TC', sans-serif";
+
+      const opt = {
+        margin: 0.3,
+        filename: '預覽確認.pdf',
+        image: { type: 'jpeg', quality: 0.9 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(container).save();
+    });
   </script>
-    
-  
-  
-  
-  
 </body>
 </html>
