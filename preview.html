@@ -258,7 +258,7 @@
     });
 
     // ✅ PDF 下載按鈕功能
-    document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+document.getElementById("downloadPdfBtn").addEventListener("click", () => {
   const container = document.createElement("div");
 
   const basicInfo = document.getElementById("previewBasic").cloneNode(true);
@@ -267,13 +267,12 @@
   container.appendChild(basicInfo);
   container.appendChild(previewContent);
 
-  // ✅ 套用 PDF 專用樣式
   container.style.padding = "1rem";
   container.style.backgroundColor = "#fff";
   container.style.color = "#000";
   container.style.fontFamily = "'Noto Sans TC', sans-serif";
+  container.style.width = "fit-content";
 
-  // ✅ 移除可能造成裁切的 max-width 與 margin
   container.querySelectorAll(".preview-box").forEach(box => {
     box.style.maxWidth = "100%";
     box.style.margin = "1rem 0";
@@ -281,16 +280,23 @@
     box.style.color = "#000";
   });
 
-  const opt = {
-    margin: 0.3,
-    filename: '預覽確認.pdf',
-    image: { type: 'jpeg', quality: 0.9 },
-    html2canvas: { scale: 2, scrollY: 0, useCORS: true },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
+  html2canvas(container, {
+    scale: 2,
+    scrollY: 0,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdfWidth = 210; // A4宽度 mm
+    const imgProps = { width: canvas.width, height: canvas.height };
+    const ratio = pdfWidth / imgProps.width;
+    const pdfHeight = imgProps.height * ratio;
 
-  html2pdf().set(opt).from(container).save();
+    const pdf = new jspdf.jsPDF('p', 'mm', [pdfHeight + 10, pdfWidth]);
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('預覽確認.pdf');
+  });
 });
+
 
   </script>
 </body>
