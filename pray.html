@@ -282,11 +282,11 @@ function submitData() {
     total
   };
 
-  fetch('https://script.google.com/macros/s/your_GAS_URL/exec', {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
+fetch('https://form.gealarm2012.workers.dev/gas2', {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+})
   .then(res => res.text())
   .then(() => {
     alert("🙏 提交成功！手机号已加前缀存入 Google Sheet");
