@@ -251,15 +251,17 @@ function downloadPDF() {
   }).then(canvas => {
     const imgData = canvas.toDataURL('image/jpeg', 0.5);
     const imgProps = { width: canvas.width, height: canvas.height };
-    const pdfWidth = 210; // A4 宽度 (mm)
+    const pdfWidth = 210; // A4宽度 (mm)
     const ratio = pdfWidth / imgProps.width;
-    const pdfHeight = imgProps.height * ratio;
+    const baseHeight = imgProps.height * ratio;
+    const extraSpace = 10; // 单位：mm
 
-    const pdf = new jspdf.jsPDF('p', 'mm', [pdfHeight, pdfWidth]); // 高度自适应
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    const pdf = new jspdf.jsPDF('p', 'mm', [baseHeight + extraSpace, pdfWidth]);
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, baseHeight);
     pdf.save('祈福资料.pdf');
   });
 }
+
 
 
 function submitData() {
