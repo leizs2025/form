@@ -250,16 +250,17 @@ function downloadPDF() {
     useCORS: true
   }).then(canvas => {
     const imgData = canvas.toDataURL('image/jpeg', 0.5);
-    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const imgProps = pdf.getImageProperties(imgData);
-    const imgWidth = pageWidth - 20;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-    const centerX = (pageWidth - imgWidth) / 2;
-    pdf.addImage(imgData, 'JPEG', centerX, 10, imgWidth, imgHeight);
+    const imgProps = { width: canvas.width, height: canvas.height };
+    const pdfWidth = 210; // A4 宽度 (mm)
+    const ratio = pdfWidth / imgProps.width;
+    const pdfHeight = imgProps.height * ratio;
+
+    const pdf = new jspdf.jsPDF('p', 'mm', [pdfHeight, pdfWidth]); // 高度自适应
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
     pdf.save('祈福资料.pdf');
   });
 }
+
 
 function submitData() {
   const prayers = JSON.parse(localStorage.getItem('prayers') || '[]');
