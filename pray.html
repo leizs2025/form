@@ -238,7 +238,8 @@ function renderPreview(data, total) {
   const dateStr = now.getFullYear() + "-" + (now.getMonth() + 1).toString().padStart(2, "0") + "-" + now.getDate().toString().padStart(2, "0");
   const prefixMap = { "清明节": "5m", "中元节": "5y", "红财神": "5h" };
   const phoneWithPrefix = (prefixMap[submitterData.category] || '') + submitterData.phone;
-
+  document.getElementById('previewTitle').style.textAlign = "left";
+  document.getElementById('previewInfo').style.textAlign = "left";
   document.getElementById('previewTitle').textContent = `${submitterData.category || ''} · 祈福资料`;
   info.innerHTML = `填写者：${submitterData.submitter || ''}　手机：${phoneWithPrefix}<br/>日期：${dateStr}`;
 
