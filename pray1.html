@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>祈福登记流程</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Noto Serif SC', serif;
+      margin: 0;
+      background: #fefdf6;
+    }
+    .step { display: none; padding: 20px; max-width: 600px; margin: auto; }
+    .step.active { display: block; }
+    h2 { color: #8b0000; text-align: center; }
+    label { display: block; margin-top: 15px; font-weight: bold; color: #333; }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .error { font-size: 13px; color: #d8000c; }
+    .btn {
+      margin-top: 25px;
+      background-color: #8b0000;
+      color: #fff;
+      border: none;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .btn:hover { background-color: #a10f0f; }
+    .prayer-box {
+      border: 1px solid #8b0000;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+    .actions, .footer-bar {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .footer-bar {
+      border-top: 1px solid #8b0000;
+      padding-top: 10px;
+      font-size: 18px;
+      color: #8b0000;
+    }
+    .preview-box {
+      background: #fff;
+      border-left: 4px solid #8b0000;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .download-btn {
+      background: #8b0000;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+    .pdf-area {
+      margin: auto;
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Step 1 -->
+<div class="step active" id="step1">
+  <h2>🙏 祈福登记 · 第一步</h2>
+  <label for="phone">手机号</label>
+  <input type="text" id="phone" placeholder="请输入手机号" />
+  <div id="phoneError" class="error"></div>
+
+  <label for="submitter">填写者姓名</label>
+  <input type="text" id="submitter" placeholder="请输入姓名" />
+  <div id="submitterError" class="error"></div>
+
+  <label for="category">法会类别</label>
+  <select id="category">
+    <option value="">请选择</option>
+    <option value="清明节">清明节</option>
+    <option value="中元节">中元节</option>
+    <option value="红财神">红财神</option>
+    
+  </select>
+  <div id="categoryError" class="error"></div>
+
+  <button class="btn" onclick="goToStep2()">下一步</button>
+</div>
+
+<!-- Step 2 -->
+<div class="step" id="step2">
+  <h2>🙏 填写祈福者资料</h2>
+  <div id="prayerList"></div>
+  <div class="actions">
+    <button onclick="addPrayer(false)">➕ 增加一位祈福者</button>
+    <button onclick="removePrayer()">🗑 删除最后一位</button>
+  </div>
+  <div class="footer-bar">
+    总金额：<span id="totalPrice">0</span> 元
+  </div>
+  <button class="btn" onclick="goToStep3()">预览资料</button>
+</div>
+
+<!-- Step 3 -->
+<div class="step" id="step3">
+  <h2>🧾 祈福资料预览</h2>
+  <div id="pdfWrapper" class="pdf-area">
+    <div id="previewTitle" style="text-align:center; font-size: 20px; color: #8b0000; margin-bottom: 15px;"></div>
+    <div id="previewContent"></div>
+  </div>
+  <div class="footer-bar">总金额：<span id="finalTotal">0</span> 元</div>
+  <div style="text-align:center;">
+    <button class="btn" onclick="downloadPDF()">📄 下载为 PDF</button>
+    <button class="btn" onclick="showStep('step2')">🔙 返回修改</button>
+    <button class="btn" onclick="submitData()">✅ 最终提交</button>
+  </div>
+</div>
+
+<script>
+let count = 0, maxPeople = 13;
+const prices = { token: 5, stick: 1, gold3: 3, gold6: 6 };
+
+function showStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goToStep2() {
+  const phone = document.getElementById('phone').value.trim();
+  const submitter = document.getElementById('submitter').value.trim();
+  const category = document.getElementById('category').value;
+
+  document.getElementById('phoneError').textContent = '';
+  document.getElementById('submitterError').textContent = '';
+  document.getElementById('categoryError').textContent = '';
+
+  let valid = true;
+  if (!phone) { document.getElementById('phoneError').textContent = '请输入手机号'; valid = false; }
+  if (!submitter) { document.getElementById('submitterError').textContent = '请输入姓名'; valid = false; }
+  if (!category) { document.getElementById('categoryError').textContent = '请选择类别'; valid = false; }
+
+  if (valid) {
+    localStorage.setItem('submitter', JSON.stringify({ phone, submitter, category }));
+    showStep('step2');
+    if (count === 0) addPrayer(false);
+  }
+}
+
+function addPrayer(copyLast = true) {
+  if (count >= maxPeople) return alert("最多只能添加13位");
+  count++;
+  const box = document.createElement("div");
+  box.className = "prayer-box";
+
+  const last = document.querySelector('.prayer-box:last-child');
+  const data = last ? last.querySelectorAll('input') : [];
+
+  box.innerHTML = `
+    <h3>第 ${count} 位祈福者</h3>
+    <label>姓名</label><input type="text" name="name" value="${copyLast && data[0] ? data[0].value : ''}" />
+    <label>地址</label><input type="text" name="address" value="${copyLast && data[1] ? data[1].value : ''}" />
+    <label>祈福令牌 (5元)</label><input type="number" name="token" min="0" value="${copyLast && data[2] ? data[2].value : ''}" oninput="calcTotal()" />
+    <label>小护摩片 (1元)</label><input type="number" name="stick" min="0" value="${copyLast && data[3] ? data[3].value : ''}" oninput="calcTotal()" />
+    <label>纸金 (3元)</label><input type="number" name="gold3" min="0" value="${copyLast && data[4] ? data[4].value : ''}" oninput="calcTotal()" />
+    <label>纸金 (6元)</label><input type="number" name="gold6" min="0" value="${copyLast && data[5] ? data[5].value : ''}" oninput="calcTotal()" />
+  `;
+  document.getElementById('prayerList').appendChild(box);
+  calcTotal();
+}
+
+function removePrayer() {
+  if (count > 1) {
+    document.getElementById('prayerList').removeChild(document.getElementById('prayerList').lastElementChild);
+    count--;
+    calcTotal();
+  }
+}
+
+function calcTotal() {
+  let total = 0;
+  document.querySelectorAll('.prayer-box').forEach(box => {
+    total += (+(box.querySelector('input[name="token"]').value || 0)) * prices.token;
+    total += (+(box.querySelector('input[name="stick"]').value || 0)) * prices.stick;
+    total += (+(box.querySelector('input[name="gold3"]').value || 0)) * prices.gold3;
+    total += (+(box.querySelector('input[name="gold6"]').value || 0)) * prices.gold6;
+  });
+  document.getElementById('totalPrice').textContent = total.toFixed(2);
+}
+
+function goToStep3() {
+  const data = [];
+  document.querySelectorAll('.prayer-box').forEach(box => {
+    data.push({
+      name: box.querySelector('input[name="name"]').value,
+      address: box.querySelector('input[name="address"]').value,
+      token: +box.querySelector('input[name="token"]').value || 0,
+      stick: +box.querySelector('input[name="stick"]').value || 0,
+      gold3: +box.querySelector('input[name="gold3"]').value || 0,
+      gold6: +box.querySelector('input[name="gold6"]').value || 0
+    });
+  });
+  const total = document.getElementById('totalPrice').textContent;
+  localStorage.setItem('prayers', JSON.stringify(data));
+  localStorage.setItem('totalPrice', total);
+  renderPreview(data, total);
+  showStep('step3');
+}
+
+function renderPreview(data, total) {
+  const container = document.getElementById('previewContent');
+  const submitterData = JSON.parse(localStorage.getItem('submitter') || '{}');
+  document.getElementById('previewTitle').textContent = `${submitterData.category || ''} · 祈福资料`;
+
+  container.innerHTML = '';
+  data.forEach((item, i) => {
+    container.innerHTML += `
+      <div class="preview-box">
+        <div><strong>第 ${i + 1} 位</strong></div>
+        <div>姓名：${item.name}</div>
+        <div>地址：${item.address}</div>
+        ${item.token ? `<div>祈福令牌：${item.token} 个</div>` : ''}
+        ${item.stick ? `<div>小护摩片：${item.stick} 个</div>` : ''}
+        ${item.gold3 ? `<div>纸金（3元）：${item.gold3} 份</div>` : ''}
+        ${item.gold6 ? `<div>纸金（6元）：${item.gold6} 份</div>` : ''}
+      </div>`;
+  });
+  document.getElementById('finalTotal').textContent = total;
+}
+
+function downloadPDF() {
+  const target = document.getElementById('pdfWrapper');
+  html2canvas(target, {
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL('image/jpeg', 0.5);
+    const imgProps = { width: canvas.width, height: canvas.height };
+    const pdfWidth = 210; // A4宽度 (mm)
+    const ratio = pdfWidth / imgProps.width;
+    const baseHeight = imgProps.height * ratio;
+    const extraSpace = 10; // 单位：mm
+
+    const pdf = new jspdf.jsPDF('p', 'mm', [baseHeight + extraSpace, pdfWidth]);
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, baseHeight);
+    pdf.save('祈福资料.pdf');
+  });
+}
+
+
+
+function submitData() {
+  const prayers = JSON.parse(localStorage.getItem('prayers') || '[]');
+  const total = localStorage.getItem('totalPrice') || '0';
+  const { phone, submitter, category } = JSON.parse(localStorage.getItem('submitter') || '{}');
+
+  const prefixMap = {
+    "清明节": "5m",
+    "中元节": "5y",
+    "红财神": "5h",
+    
+  };
+  const phoneWithPrefix = (prefixMap[category] || '') + phone;
+
+  const data = {
+    phone: phoneWithPrefix,
+    filler: submitter,
+    category,
+    prayers,
+    total
+  };
+
+fetch('https://form.gealarm2012.workers.dev/gas2', {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+})
+  .then(res => res.text())
+  .then(() => {
+    alert("🙏 提交成功！手机号已加前缀存入 Google Sheet");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("⚠️ 提交失败，请检查网络或脚本部署");
+  });
+}
+
+</script>
+</body>
+</html>
