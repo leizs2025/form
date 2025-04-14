@@ -101,35 +101,37 @@ function addEntry(data = {}) {
   container.dataset.index = index;
 
   container.innerHTML = `
-    <label>地址：</label>
-    <input type="text" class="location-input" value="${data.location || ''}" />
+    <label>地基主 / 土地公 地址：</label>
+    <input type="text" class="location-input" name="location" />
 
     <label>超度令牌 (5元/份)：</label>
-    <input type="number" class="token-input" min="0" value="${data.token || ''}" oninput="updateTotal()" />
+    <input type="number" class="token-input" name="token" min="0" oninput="updateTotal()" />
 
     <label>法船配套 (30元/份)：</label>
-    <input type="number" class="boat-input" min="0" value="${data.boat || ''}" oninput="updateTotal()" />
+    <input type="number" class="boat-input" name="boat" min="0" oninput="updateTotal()" />
 
     <label>蓮花 (6元/份)：</label>
-    <input type="number" class="lotus-input" min="0" value="${data.lotus || ''}" oninput="updateTotal()" />
+    <input type="number" class="lotus-input" name="lotus" min="0" oninput="updateTotal()" />
 
     <label>紙金3 (3元/份)：</label>
-    <input type="number" class="paper3-input" min="0" value="${data.paper3 || ''}" oninput="updateTotal()" />
+    <input type="number" class="paper3-input" name="paper3" min="0" oninput="updateTotal()" />
 
     <label>紙金6 (6元/份)：</label>
-    <input type="number" class="paper6-input" min="0" value="${data.paper6 || ''}" oninput="updateTotal()" />
+    <input type="number" class="paper6-input" name="paper6" min="0" oninput="updateTotal()" />
 
     <label>紙金27 (27元/份)：</label>
-    <input type="number" class="paper27-input" min="0" value="${data.paper27 || ''}" oninput="updateTotal()" />
+    <input type="number" class="paper27-input" name="paper27" min="0" oninput="updateTotal()" />
 
     <label>配套備註：</label>
-    <input type="text" class="extra-input" value="${data.extra || ''}" />
+    <input type="text" class="extra-input" name="extra" />
 
     ${index > 0 ? `<button class="danger" onclick="removeEntry(${index})">🗑️ 刪除此位</button>` : ''}
   `;
 
   document.getElementById("entries").appendChild(container);
   entries.push(container);
+  restoreEntryData(container, data);
+  bindAutoSave(container);
   updateTotal();
 }
 
@@ -137,6 +139,7 @@ function removeEntry(index) {
   entries[index].remove();
   entries.splice(index, 1);
   updateTotal();
+  saveAllEntries();
 }
 
 function updateTotal() {
@@ -153,52 +156,54 @@ function updateTotal() {
     subtotal += getValue("paper6-input", 6);
     subtotal += getValue("paper27-input", 27);
   }
-  document.getElementById("totalDisplay").innerText = `總金額：${subtotal} 元`;
+  document.getElementById("totalDisplay").textContent = `總金額：${subtotal} 元`;
+}
+
+function bindAutoSave(container) {
+  const inputs = container.querySelectorAll("input, select");
+  inputs.forEach(input => {
+    input.addEventListener("input", () => saveAllEntries());
+  });
+}
+
+function restoreAllEntries() {
+  const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
+  const list = stored.ground || [];
+  list.forEach(data => addEntry(data));
+}
+
+function saveAllEntries() {
+  const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
+  const filled = entries.map(container => {
+    const row = {};
+    container.querySelectorAll("input, select").forEach(input => {
+      row[input.name] = input.value;
+    });
+    return row;
+  });
+  stored.ground = filled;
+  localStorage.setItem("allFormData", JSON.stringify(stored));
+}
+
+function restoreEntryData(container, data) {
+  container.querySelectorAll("input, select").forEach(input => {
+    input.value = data[input.name] || "";
+  });
 }
 
 function previewAndSubmit() {
-  const stored = JSON.parse(localStorage.getItem("allFormData") || "{}");
- 
-
-  // ✅ 保留通用资料（如果前面有写进去就不会不见）
-    const commonFields = {
-    phone: stored.phone || "",
-    name: stored.name || "",
-    address: stored.address || "",
-  };
-
-  // ✅ 每个页面只改对应那一块（以下为地基主示范）
-    const groundData = entries.map(container => ({
-    location: container.querySelector(".location-input").value,
-    token: container.querySelector(".token-input").value,
-    boat: container.querySelector(".boat-input").value,
-    lotus: container.querySelector(".lotus-input").value,
-    paper3: container.querySelector(".paper3-input").value,
-    paper6: container.querySelector(".paper6-input").value,
-    paper27: container.querySelector(".paper27-input").value,
-    extra: container.querySelector(".extra-input").value,
-  }));
-
-  // ✅ 合併資料：原本的 + 通用欄位 + 目前的子表
-  const newStored = {
-    ...stored,
-    ...commonFields,
-    ground: groundData
-  };
-
-  localStorage.setItem("allFormData", JSON.stringify(newStored));
+  saveAllEntries();
   window.location.href = "preview.html";
 }
-
 
 function goBack() {
   window.location.href = "main.html";
 }
 
 window.onload = () => {
-  addEntry();
+  restoreAllEntries();
+  if (entries.length === 0) addEntry();
 };
 </script>
-
 </body>
 </html>
