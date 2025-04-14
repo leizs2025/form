@@ -84,9 +84,10 @@
   <div class="footer">© 2025 超度報名系統 敬啟</div>
 
  
-  <script>
- document.getElementById("entryForm").addEventListener("submit", function (e) {
+ <script>
+document.getElementById("entryForm").addEventListener("submit", function (e) {
   e.preventDefault();
+
   const phone = document.getElementById("phone").value.trim();
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
@@ -96,25 +97,23 @@
     return;
   }
 
-  // ✅ 存成統一格式 allData
+  // ✅ 保留原本的 allFormData 子表資料
+  const oldData = JSON.parse(localStorage.getItem("allFormData") || "{}");
+
   const allData = {
+    ...oldData,
     phone,
     name,
-    address,
-    ancestor: [],
-    baby: [],
-    enemy: [],
-    past: [],
-    ground: []
+    address
   };
 
+  // ✅ 寫入 localStorage，不會清掉 ancestor/baby/... 等資料
   localStorage.setItem("allFormData", JSON.stringify(allData));
 
   // ✅ 跳轉至 main.html
   window.location.href = "main.html";
-
 });
+</script>
 
-  </script>
 </body>
 </html>
