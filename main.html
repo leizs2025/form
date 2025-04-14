@@ -83,26 +83,44 @@
   <input type="hidden" id="mainName" name="陽上報恩人" />
   <input type="hidden" id="mainAddress" name="陽上地址" />
 
-  <script>
-    const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
+ <script>
+  // ✅ 讀取 localStorage 中的資料
+  const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
 
-    // 防呆：如果基本資料不存在，就跳回 index
-    if (!allData.phone || !allData.name || !allData.address) {
-      alert("請先填寫基本資料！");
-      window.location.href = "index.html";
-    }
+  // ✅ 防呆：如果基本資料不存在，跳回 index
+  if (!allData.phone || !allData.name || !allData.address) {
+    alert("請先填寫基本資料！");
+    window.location.href = "index.html";
+  }
 
-    // 顯示使用者基本資料（多行顯示）
-    const infoText = 
-      `陽上報恩人：${allData.name}\n` +
-      `手機號碼　：${allData.phone}\n` +
-      `陽上地址　：${allData.address}`;
-    document.getElementById("displayInfo").textContent = infoText;
+  // ✅ 顯示使用者基本資料卡片（高級感）
+  const infoBox = document.createElement("div");
+  infoBox.style.cssText = `
+    background: linear-gradient(to right, #ffd6d6, #ffe2e2);
+    border: 1px solid #ffa8a8;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.1);
+    font-size: 1rem;
+    color: #700;
+    white-space: pre-line;
+  `;
 
-    // 同步填入 hidden input（可選）
-    document.getElementById("mainPhone").value = allData.phone;
-    document.getElementById("mainName").value = allData.name;
-    document.getElementById("mainAddress").value = allData.address;
-  </script>
+  const infoText = 
+    `👤 陽上報恩人：${allData.name}\n` +
+    `📞 手機號碼　：${allData.phone}\n` +
+    `🏠 陽上地址　：${allData.address}`;
+
+  infoBox.textContent = infoText;
+  document.body.insertBefore(infoBox, document.body.firstChild); // 插在頁面最前方
+
+  // ✅ 填入 hidden input（若有後續需要送出）
+  document.getElementById("mainPhone").value = allData.phone;
+  document.getElementById("mainName").value = allData.name;
+  document.getElementById("mainAddress").value = allData.address;
+</script>
+
 </body>
 </html>
