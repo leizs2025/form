@@ -119,7 +119,11 @@
     <button onclick="addPrayer(false)">➕ 增加一位祈福者</button>
     <button onclick="removePrayer()">🗑 删除最后一位</button>
   </div>
-  <div class="footer-bar">
+  <div style="margin-top: 20px;">
+ <label>🙏 随喜赞助（一次性金额）</label>
+<input type="number" id="donation" min="0"
+       placeholder="0" oninput="calcTotal()" />
+<div class="footer-bar">
     总金额：<span id="totalPrice">0</span> 元
   </div>
   <button class="btn" onclick="goToStep3()">预览资料</button>
@@ -208,8 +212,13 @@ function calcTotal() {
     total += (+(box.querySelector('input[name="gold3"]').value || 0)) * prices.gold3;
     total += (+(box.querySelector('input[name="gold6"]').value || 0)) * prices.gold6;
   });
+
+  const donation = +document.getElementById('donation').value || 0;
+  total += donation;
+
   document.getElementById('totalPrice').textContent = total.toFixed(2);
 }
+
 
 function goToStep3() {
   const data = [];
@@ -223,6 +232,8 @@ function goToStep3() {
       gold6: +box.querySelector('input[name="gold6"]').value || 0
     });
   });
+const donation = +document.getElementById('donation').value || 0;
+localStorage.setItem('donation', donation);
   const total = document.getElementById('totalPrice').textContent;
   localStorage.setItem('prayers', JSON.stringify(data));
   localStorage.setItem('totalPrice', total);
@@ -254,8 +265,15 @@ function renderPreview(data, total) {
         ${item.stick ? `<div>小护摩片：${item.stick} 个</div>` : ''}
         ${item.gold3 ? `<div>纸金（3元）：${item.gold3} 份</div>` : ''}
         ${item.gold6 ? `<div>纸金（6元）：${item.gold6} 份</div>` : ''}
-      </div>`;
+            </div>`;
   });
+ const donation = +localStorage.getItem('donation') || 0;
+       if (donation) {
+  container.innerHTML += `
+    <div class="preview-box">
+      <strong>🙏 随喜赞助金额：</strong> ${donation.toFixed(2)} 元
+    </div>`;
+}
   document.getElementById('finalTotal').textContent = total;
 }
 
@@ -287,6 +305,7 @@ function submitData() {
   const prayers = JSON.parse(localStorage.getItem('prayers') || '[]');
   const total = localStorage.getItem('totalPrice') || '0';
   const { phone, submitter, category } = JSON.parse(localStorage.getItem('submitter') || '{}');
+ const donation = +localStorage.getItem('donation') || 0;
   const prefixMap = { "清明节": "5m", "中元节": "5y", "红财神": "5h" };
   const phoneWithPrefix = (prefixMap[category] || '') + phone;
 
@@ -295,7 +314,8 @@ function submitData() {
     filler: submitter,
     category,
     prayers,
-    total
+    total,
+    donation  // ✅ 新字段
   };
 
   fetch('https://form.gealarm2012.workers.dev/gas2', {
