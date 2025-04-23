@@ -58,6 +58,18 @@
       color: #ccc;
       margin-top: 4rem;
     }
+select {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+  margin-top: 0.5rem;
+  box-sizing: border-box;
+  background-color: #fefefe;
+  color: #333;
+  appearance: none; /* 隱藏原生箭頭樣式，可自行加入背景圖示箭頭 */
+}
   </style>
 </head>
 <body>
@@ -72,8 +84,18 @@
     <label for="address">陽上地址：</label>
     <input type="text" id="address" required />
 
+   <label for="festival">法会别类：</label>
+   <select id="festival" required>
+   <option value="">請選擇</option>
+   <option value="清明節">清明節</option>
+   <option value="中元節">中元節</option>
+   <option value="其他">其他</option>
+   </select>
+
+
+
     <button type="submit">進入選單</button>
-    <div style="max-width:400px; margin: 3rem auto 0; text-align: center;">
+<div style="max-width:400px; margin: 3rem auto 0; text-align: center;">
   <button onclick="window.location.href='pray.html'" style="background-color: #444;">
     👉 前往祈福報名
   </button>
@@ -84,6 +106,7 @@
   <div class="footer">© 2025 超度報名系統 敬啟</div>
 
  
+
  <script>
 document.getElementById("entryForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -91,6 +114,7 @@ document.getElementById("entryForm").addEventListener("submit", function (e) {
   const phone = document.getElementById("phone").value.trim();
   const name = document.getElementById("name").value.trim();
   const address = document.getElementById("address").value.trim();
+  const festival = document.getElementById("festival").value;
 
   if (!phone || !name || !address) {
     alert("請完整填寫所有資料！");
@@ -100,12 +124,15 @@ document.getElementById("entryForm").addEventListener("submit", function (e) {
   // ✅ 保留原本的 allFormData 子表資料
   const oldData = JSON.parse(localStorage.getItem("allFormData") || "{}");
 
-  const allData = {
-    ...oldData,
-    phone,
-    name,
-    address
-  };
+const festival = document.getElementById("festival").value;
+
+const allData = {
+  ...oldData,
+  phone,
+  name,
+  address,
+  festival
+};
 
   // ✅ 寫入 localStorage，不會清掉 ancestor/baby/... 等資料
   localStorage.setItem("allFormData", JSON.stringify(allData));
