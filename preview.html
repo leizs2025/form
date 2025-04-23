@@ -36,19 +36,21 @@
       border-bottom: 1px solid #ccc;
       padding-bottom: 0.2rem;
     }
-    table {
+    input[type="number"] {
       width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 2rem;
-      overflow-x: auto;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #888;
+      border-radius: 8px;
+      background: #fff;
+      color: #333;
+      box-sizing: border-box;
     }
-    th, td {
-      border: 1px solid #666;
-      padding: 0.5rem;
-      text-align: left;
-    }
-    th {
-      background-color: #555;
+    #totalSummary {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 1rem;
     }
     button {
       display: block;
@@ -71,262 +73,155 @@
       color: #ccc;
       text-decoration: underline;
     }
-    #totalSummary {
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-    @media screen and (max-width: 600px) {
-      body {
-        padding: 1rem;
-        font-size: 0.95rem;
-      }
-      h1 {
-        font-size: 1.4rem;
-        text-align: center;
-      }
-      .section {
-        padding: 1rem;
-        margin: 0.5rem 0;
-      }
-      .entry {
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-      }
-      .field {
-        margin: 0.4rem 0;
-      }
-      .field label {
-        display: block;
-        margin-bottom: 0.2rem;
-        font-weight: bold;
-        font-size: 0.9rem;
-      }
-      .field span {
-        display: block;
-        font-size: 0.95rem;
-      }
-      .action-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-        margin-top: 1.5rem;
-      }
-      .action-buttons button {
-        font-size: 1rem;
-        padding: 0.6rem;
-        width: 100%;
-      }
-    }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-  <h1>預覽與確認送出</h1>
+<h1>預覽與確認送出</h1>
 
-  <h2>基本資料確認</h2>
-  <div class="preview-box" id="previewBasic">
-    <div class="item">陽上報恩人：<span id="previewName"></span></div>
-    <div class="item">手機號碼：<span id="previewPhone"></span></div>
-    <div class="item">地址：<span id="previewAddress"></span></div>
-  </div>
+<h2>基本資料確認</h2>
+<div class="preview-box" id="previewBasic">
+  <div class="item">陽上報恩人：<span id="previewName"></span></div>
+  <div class="item">手機號碼：<span id="previewPhone"></span></div>
+  <div class="item">實際送出手機：<span id="previewPhoneWithPrefix"></span></div>
+  <div class="item">地址：<span id="previewAddress"></span></div>
+  <div class="item">法会类别：<span id="previewFestival"></span></div>
+</div>
 
-  <div id="previewArea"></div>
-  <div id="totalSummary">赞助總金額：0 元</div>
+<div id="previewArea"></div>
 
-  <button id="downloadPdfBtn">下載 PDF 預覽</button>
-  <button id="submitButton">確認送出</button>
-  <a class="back-button" href="main.html">← 返回填寫其他項目</a>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<div class="preview-box" style="max-width: 500px; margin: 1rem auto;">
+  <label for="donation">一次性 超度報名供養金（隨喜贊助）：</label>
+  <input type="number" id="donation" min="0" placeholder="請輸入金額" oninput="updateTotalAmount()" />
+</div>
 
- <script>
-  const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
+<div id="totalSummary">總金額：0 元</div>
 
-  if (!allData.phone || !allData.name || !allData.address) {
-    alert("請先填寫基本資料！");
-    window.location.href = "index.html";
-  }
+<button id="submitButton">確認送出</button>
+<a class="back-button" href="main.html">← 返回填寫其他項目</a>
 
-  document.getElementById("previewName").textContent = allData.name;
-  document.getElementById("previewPhone").textContent = allData.phone;
-  document.getElementById("previewAddress").textContent = allData.address;
+<script>
+const allData = JSON.parse(localStorage.getItem("allFormData") || "{}");
+if (!allData.phone || !allData.name || !allData.address) {
+  alert("請先填寫基本資料！");
+  window.location.href = "index.html";
+}
 
-  const previewArea = document.getElementById("previewArea");
+document.getElementById("previewName").textContent = allData.name;
+document.getElementById("previewPhone").textContent = allData.phone;
+document.getElementById("previewPhoneWithPrefix").textContent = generatePrefixedPhone(allData.phone, allData.festival || "");
+document.getElementById("previewAddress").textContent = allData.address;
+document.getElementById("previewFestival").textContent = allData.festival || "未填寫";
 
-  const itemLabelsMap = {
-    ancestor: { ancestorName: "祖先/亡灵名字", placeType: "種類", location: "安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
-    baby:     { yang: "陽上對象", location: "水子靈 蓮位 / 安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
-    enemy:    { yang: "陽上對象", location: "超度對象 / 安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
-    past:     { yang: "陽上對象", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
-    ground:   { location: "地基主 / 土地公 地址", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" }
-  };
+function generatePrefixedPhone(phone, festival) {
+  const yearCode = String(new Date().getFullYear()).slice(-1);
+  let prefix = "";
+  if (festival === "清明節") prefix = `${yearCode}m`;
+  else if (festival === "中元節") prefix = `${yearCode}y`;
+  else if (festival === "其他") prefix = `${yearCode}t`;
+  return prefix + phone;
+}
 
-  const itemPrices = {
-    token: 5, boat: 30, lotus: 6, paper3: 3, paper6: 6, paper27: 27
-  };
+const itemLabelsMap = {
+  ancestor: { ancestorName: "祖先/亡灵名字", placeType: "種類", location: "安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+  baby:     { yang: "陽上對象", location: "水子靈 蓮位 / 安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+  enemy:    { yang: "陽上對象", location: "超度對象 / 安奉地點", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+  past:     { yang: "陽上對象", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" },
+  ground:   { location: "地基主 / 土地公 地址", token: "超度令牌", boat: "法船配套", lotus: "蓮花", paper3: "纸金 3", paper6: "纸金 6", paper27: "纸金 27", extra: "配套備註" }
+};
 
-  const sections = [
-    { key: "ancestor", label: "祖先超度", count: 8 },
-    { key: "baby", label: "水子靈超度", count: 8 },
-    { key: "enemy", label: "纏身靈 / 冤親債主超度", count: 5 },
-    { key: "past", label: "前世今生所殺生靈超度", count: 4 },
-    { key: "ground", label: "地基主 / 土地公超度", count: 2 }
-  ];
+const itemPrices = { token: 5, boat: 30, lotus: 6, paper3: 3, paper6: 6, paper27: 27 };
+const sections = [
+  { key: "ancestor", label: "祖先超度", count: 8 },
+  { key: "baby", label: "水子靈超度", count: 5 },
+  { key: "enemy", label: "纏身靈 / 冤親債主超度", count: 5 },
+  { key: "past", label: "前世今生所殺生靈超度", count: 4 },
+  { key: "ground", label: "地基主 / 土地公超度", count: 2 }
+];
 
-  let totalAmount = 0;
+let totalAmount = 0;
+const previewArea = document.getElementById("previewArea");
 
-  const calcSubtotal = (entry) => {
-    return Object.entries(itemPrices).reduce((sum, [key, price]) => {
-      return sum + (Number(entry[key] || 0) * price);
-    }, 0);
-  };
+const calcSubtotal = (entry) => {
+  return Object.entries(itemPrices).reduce((sum, [key, price]) => {
+    return sum + (Number(entry[key] || 0) * price);
+  }, 0);
+};
 
-  sections.forEach(({ key, label }) => {
-    const data = Array.isArray(allData[key]) ? allData[key] : [];
-    const filtered = data.filter(entry =>
-      Object.values(entry).some(val => val !== "" && val !== null && val !== undefined)
-    );
+sections.forEach(({ key, label }) => {
+  const data = Array.isArray(allData[key]) ? allData[key] : [];
+  const filtered = data.filter(entry => Object.values(entry).some(val => val !== "" && val !== null && val !== undefined));
+  if (filtered.length === 0) return;
 
-    if (filtered.length === 0) return;
+  const sectionTitle = document.createElement("div");
+  sectionTitle.className = "section-title";
+  sectionTitle.textContent = label;
+  previewArea.appendChild(sectionTitle);
 
-    const sectionTitle = document.createElement("div");
-    sectionTitle.className = "section-title";
-    sectionTitle.textContent = label;
-    previewArea.appendChild(sectionTitle);
-
-    filtered.forEach(entry => {
-      const box = document.createElement("div");
-      box.className = "preview-box entry";
-
-      Object.entries(itemLabelsMap[key] || {}).forEach(([field, fieldLabel]) => {
-        const value = entry[field];
-        if (value !== undefined && value !== "") {
-          const item = document.createElement("div");
-          item.className = "item";
-          item.textContent = `${fieldLabel}: ${value}`;
-          box.appendChild(item);
-        }
-      });
-
-      const subtotal = calcSubtotal(entry);
-      const subtotalEl = document.createElement("div");
-      subtotalEl.className = "item";
-      subtotalEl.style.fontWeight = "bold";
-      subtotalEl.textContent = `此項目金額：${subtotal} 元`;
-      box.appendChild(subtotalEl);
-
-      previewArea.appendChild(box);
-      totalAmount += subtotal;
+  filtered.forEach(entry => {
+    const box = document.createElement("div");
+    box.className = "preview-box entry";
+    Object.entries(itemLabelsMap[key] || {}).forEach(([field, label]) => {
+      const value = entry[field];
+      if (value !== undefined && value !== "") {
+        const item = document.createElement("div");
+        item.className = "item";
+        item.textContent = `${label}: ${value}`;
+        box.appendChild(item);
+      }
     });
+    const subtotal = calcSubtotal(entry);
+    const subtotalEl = document.createElement("div");
+    subtotalEl.className = "item";
+    subtotalEl.style.fontWeight = "bold";
+    subtotalEl.textContent = `此項目金額：${subtotal} 元`;
+    box.appendChild(subtotalEl);
+    previewArea.appendChild(box);
+    totalAmount += subtotal;
   });
-
-  document.getElementById("totalSummary").textContent = `總金額：${totalAmount} 元`;
-
-  document.getElementById("submitButton").addEventListener("click", async () => {
-    const payload = {
-      timestamp: new Date().toISOString(),
-      phone: allData.phone,
-      name: allData.name,
-      address: allData.address,
-      ancestor: (allData.ancestor || []).slice(0, 8),
-      baby:     (allData.baby || []).slice(0, 8),
-      enemy:    (allData.enemy || []).slice(0, 5),
-      past:     (allData.past || []).slice(0, 4),
-      ground:   (allData.ground || []).slice(0, 3),
-    };
-
-    const fill = (arr, count) => {
-      for (let i = 0; i < count; i++) {
-        if (!arr[i]) arr[i] = "";
-      }
-    };
-    fill(payload.ancestor, 8);
-    fill(payload.baby, 8);
-    fill(payload.enemy, 5);
-    fill(payload.past, 4);
-    fill(payload.ground, 3);
-
-    try {
-      const res = await fetch("https://form.gealarm2012.workers.dev/gas1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const result = await res.text();
-      if (result.trim() === "成功") {
-        alert("已送出報名資料，感謝您！");
-       localStorage.removeItem("allFormData"); // 🔥 清空所有儲存資料
-        window.location.href = "index.html";
-      } else {
-        alert("送出失敗，請稍後再試");
-      }
-    } catch (err) {
-      alert("送出錯誤：" + err.message);
-    }
-  });
-
-  // ✅ PDF 預覽下載功能（顯示金額）
-
- document.getElementById("downloadPdfBtn").addEventListener("click", async () => {
-  const container = document.createElement("div");
-
-  // 基本資料、表單內容、金額區塊
-  const basicInfo = document.getElementById("previewBasic").cloneNode(true);
-  const previewContent = document.getElementById("previewArea").cloneNode(true);
-  const totalSummary = document.getElementById("totalSummary").cloneNode(true);
-
-  container.appendChild(basicInfo);
-  container.appendChild(previewContent);
-  container.appendChild(totalSummary);
-
-  // ✅ 強制轉為白底黑字
-  container.style.padding = "1rem";
-  container.style.backgroundColor = "#fff";
-  container.style.color = "#000";
-  container.style.fontFamily = "'Noto Sans TC', sans-serif";
-  container.style.width = "800px";
-  container.style.lineHeight = "1.6";
-
-  container.querySelectorAll(".preview-box").forEach(box => {
-    box.style.backgroundColor = "#ffffff";
-    box.style.color = "#000000";
-    box.style.margin = "1rem 0";
-    box.style.padding = "1rem";
-    box.style.border = "1px solid #ccc";
-  });
-
-  const sectionTitles = container.querySelectorAll(".section-title");
-  sectionTitles.forEach(title => {
-    title.style.color = "#000";
-    title.style.fontWeight = "bold";
-    title.style.borderBottom = "1px solid #ccc";
-  });
-
-  // ➕ 插入畫面中不可見區塊避免空白截圖
-  container.style.position = "fixed";
-  container.style.top = "-9999px";
-  document.body.appendChild(container);
-
-  // 📸 截圖 + 產出 PDF
-  const canvas = await html2canvas(container, { scale: 2 });
-  const imgData = canvas.toDataURL('image/jpeg', 1.0);
-  const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-  const pdfWidth = 210;
-  const ratio = pdfWidth / canvas.width;
-  const pdfHeight = canvas.height * ratio;
-
-  pdf.internal.pageSize.height = pdfHeight;
-  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-  pdf.save('預覽確認.pdf');
-
-  // 🔚 清除插入區塊
-  container.remove();
 });
 
-</script>
-  
-</body>
+function updateTotalAmount() {
+  const rawVal = document.getElementById("donation")?.value;
+  const donation = Number(rawVal || 0);
+  const displayAmount = totalAmount + donation;
+  document.getElementById("totalSummary").textContent = rawVal === "" ? `總金額：${totalAmount} 元` : `總金額：${displayAmount} 元`;
+}
+updateTotalAmount();
 
+document.getElementById("submitButton").addEventListener("click", async () => {
+  const payload = {
+    timestamp: new Date().toISOString(),
+    phone: generatePrefixedPhone(allData.phone, allData.festival || ""),
+    name: allData.name,
+    address: allData.address,
+    festival: allData.festival || "",
+    donation: Number(document.getElementById("donation")?.value || 0),
+    ancestor: (allData.ancestor || []).slice(0, 8),
+    baby:     (allData.baby || []).slice(0, 5),
+    enemy:    (allData.enemy || []).slice(0, 5),
+    past:     (allData.past || []).slice(0, 4),
+    ground:   (allData.ground || []).slice(0, 2),
+  };
+
+  try {
+    const res = await fetch("https://form.gealarm2012.workers.dev/gas1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.text();
+    if (result.trim() === "成功") {
+      alert("已送出報名資料，感謝您！");
+      localStorage.removeItem("allFormData");
+      window.location.href = "index.html";
+    } else {
+      alert("送出失敗，請稍後再試");
+    }
+  } catch (err) {
+    alert("送出錯誤：" + err.message);
+  }
+});
+</script>
+
+</body>
 </html>
