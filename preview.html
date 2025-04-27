@@ -158,42 +158,40 @@ function renderPreviewArea() {
     { key: "ground", label: "地基主 / 土地公超度" }
   ];
 
-  sections.forEach(({ key, label }) => {
-    const data = Array.isArray(allData[key]) ? allData[key] : [];
-    const filtered = data.filter(entry => Object.values(entry).some(val => val !== "" && val !== null && val !== undefined));
+filtered.forEach((entry, index) => {
+  const box = document.createElement("div");
+  box.className = "preview-box entry";
 
-    if (filtered.length === 0) return; // 如果這個分類沒有資料，就跳過
+  Object.entries(itemLabelsMap[key] || {}).forEach(([field, labelName]) => {
+    const value = entry[field];
+    if (value !== undefined && value !== "") {
+      const item = document.createElement("div");
+      item.className = "item";
+      item.textContent = `${labelName}: ${value}`;
+      box.appendChild(item);
+    }
+  });
 
-    // 插入標題
-    const sectionTitle = document.createElement("div");
-    sectionTitle.className = "section-title";
-    sectionTitle.textContent = label;
-    previewArea.appendChild(sectionTitle);
+  const subtotal = calcSubtotal(entry);
+  const subtotalEl = document.createElement("div");
+  subtotalEl.className = "item";
+  subtotalEl.style.fontWeight = "bold";
+  subtotalEl.textContent = `此項目金額：${subtotal} 元`;
+  box.appendChild(subtotalEl);
 
-    filtered.forEach((entry, index) => {
-      const box = document.createElement("div");
-      box.className = "preview-box entry";
+  // ✨ 加上刪除按鈕
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "🗑 刪除這筆";
+  deleteButton.style.marginTop = "0.5rem";
+  deleteButton.style.display = "block";
+  deleteButton.style.marginLeft = "auto";
+  deleteButton.style.marginRight = "auto";
+  deleteButton.onclick = () => deleteEntry(key, index);
+  box.appendChild(deleteButton);
 
-      Object.entries(itemLabelsMap[key] || {}).forEach(([field, labelName]) => {
-        const value = entry[field];
-        if (value !== undefined && value !== "") {
-          const item = document.createElement("div");
-          item.className = "item";
-          item.textContent = `${labelName}: ${value}`;
-          box.appendChild(item);
-        }
-      });
-
-      const subtotal = calcSubtotal(entry);
-      const subtotalEl = document.createElement("div");
-      subtotalEl.className = "item";
-      subtotalEl.style.fontWeight = "bold";
-      subtotalEl.textContent = `此項目金額：${subtotal} 元`;
-      box.appendChild(subtotalEl);
-
-      previewArea.appendChild(box);
-      totalAmount += subtotal;
-    });
+  previewArea.appendChild(box);
+  totalAmount += subtotal;
+});
   });
 
   updateTotalAmount();
