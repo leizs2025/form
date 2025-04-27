@@ -150,26 +150,36 @@ function renderPreviewArea() {
   previewArea.innerHTML = "";
   totalAmount = 0;
 
+  const sections = [
+    { key: "ancestor", label: "祖先超度" },
+    { key: "baby", label: "水子靈超度" },
+    { key: "enemy", label: "纏身靈 / 冤親債主超度" },
+    { key: "past", label: "前世今生所殺生靈超度" },
+    { key: "ground", label: "地基主 / 土地公超度" }
+  ];
+
   sections.forEach(({ key, label }) => {
     const data = Array.isArray(allData[key]) ? allData[key] : [];
     const filtered = data.filter(entry => Object.values(entry).some(val => val !== "" && val !== null && val !== undefined));
-    if (filtered.length === 0) return;
 
+    if (filtered.length === 0) return; // 如果這個分類沒有資料，就跳過
+
+    // 插入標題
     const sectionTitle = document.createElement("div");
     sectionTitle.className = "section-title";
     sectionTitle.textContent = label;
     previewArea.appendChild(sectionTitle);
 
-    filtered.forEach((entry, index) => {  // ✨ 這裡加了 index！
+    filtered.forEach((entry, index) => {
       const box = document.createElement("div");
       box.className = "preview-box entry";
 
-      Object.entries(itemLabelsMap[key] || {}).forEach(([field, label]) => {
+      Object.entries(itemLabelsMap[key] || {}).forEach(([field, labelName]) => {
         const value = entry[field];
         if (value !== undefined && value !== "") {
           const item = document.createElement("div");
           item.className = "item";
-          item.textContent = `${label}: ${value}`;
+          item.textContent = `${labelName}: ${value}`;
           box.appendChild(item);
         }
       });
@@ -181,13 +191,6 @@ function renderPreviewArea() {
       subtotalEl.textContent = `此項目金額：${subtotal} 元`;
       box.appendChild(subtotalEl);
 
-      // ✨ 加刪除按鈕
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "🗑 刪除這筆";
-      deleteButton.style.marginTop = "0.5rem";
-      deleteButton.onclick = () => deleteEntry(key, index);
-      box.appendChild(deleteButton);
-
       previewArea.appendChild(box);
       totalAmount += subtotal;
     });
@@ -195,6 +198,7 @@ function renderPreviewArea() {
 
   updateTotalAmount();
 }
+
 
 function updateTotalAmount() {
   const rawVal = document.getElementById("donation")?.value;
