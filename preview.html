@@ -232,6 +232,7 @@ function deleteEntry(sectionKey, entryIndex) {
 }
 
 // --- 金額更新 ---
+// --- 金額更新 ---
 function updateTotalAmount() {
   const rawVal = document.getElementById("donation")?.value;
   const donation = Number(rawVal || 0);
@@ -242,6 +243,45 @@ function updateTotalAmount() {
 
 // --- 頁面一進來就呼叫一次 ---
 renderPreviewArea();
+
+// --- 綁定送出按鈕 ---
+document.getElementById("submitButton").addEventListener("click", async (e) => { 
+  e.preventDefault(); // 🔥 防止頁面刷新
+
+  const payload = {
+    timestamp: new Date().toISOString(),
+    phone: generatePrefixedPhone(allData.phone, allData.festival || ""),
+    name: allData.name,
+    address: allData.address,
+    festival: allData.festival || "",
+    donation: Number(document.getElementById("donation")?.value || 0),
+    ancestor: (allData.ancestor || []).slice(0, 8),
+    baby:     (allData.baby || []).slice(0, 5),
+    enemy:    (allData.enemy || []).slice(0, 5),
+    past:     (allData.past || []).slice(0, 4),
+    ground:   (allData.ground || []).slice(0, 2),
+  };
+
+  try {
+    const res = await fetch("https://form.gealarm2012.workers.dev/gas1", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.text();
+    if (result && result.includes("成功")) {
+      alert("已送出報名資料，感謝您！");
+      localStorage.removeItem("allFormData");
+      window.location.href = "index.html";
+    } else {
+      alert("送出失敗，請稍後再試");
+    }
+  } catch (err) {
+    console.error("送出錯誤", err);
+    alert("送出錯誤：" + err.message);
+  }
+});
 
 </script>
 
