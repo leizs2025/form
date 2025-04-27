@@ -222,7 +222,7 @@ document.getElementById("submitButton").addEventListener("click", async () => {
     past:     (allData.past || []).slice(0, 4),
     ground:   (allData.ground || []).slice(0, 2),
   };
-
+renderPreviewArea();
   try {
     const res = await fetch("https://form.gealarm2012.workers.dev/gas1", {
       method: "POST",
