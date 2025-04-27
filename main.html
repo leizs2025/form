@@ -93,28 +93,23 @@
     window.location.href = "index.html";
   }
 
-  // ✅ 顯示使用者基本資料卡片（高級感）
-  const infoBox = document.createElement("div");
-  infoBox.style.cssText = `
-    background: linear-gradient(to right, #ffd6d6, #ffe2e2);
-    border: 1px solid #ffa8a8;
-    padding: 12px 18px;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    font-weight: bold;
-    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.1);
-    font-size: 1rem;
-    color: #700;
-    white-space: pre-line;
-  `;
+ // ✅ 顯示使用者基本資料（純文字，不要卡片）
+const infoBox = document.createElement("div");
+infoBox.style.cssText = `
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: #fff; /* 你想要白色文字 */
+  white-space: pre-line;
+`;
 
-  const infoText = 
-    `👤 陽上報恩人：${allData.name}\n` +
-    `📞 手機號碼　：${allData.phone}\n` +
-    `🏠 陽上地址　：${allData.address}`;
+const infoText = 
+  `👤 陽上報恩人：${allData.name}\n` +
+  `📞 手機號碼　：${allData.phone}\n` +
+  `🏠 陽上地址　：${allData.address}`;
 
-  infoBox.textContent = infoText;
-  document.body.insertBefore(infoBox, document.body.firstChild); // 插在頁面最前方
+infoBox.textContent = infoText;
+document.body.insertBefore(infoBox, document.body.firstChild);
+
 
   // ✅ 填入 hidden input（若有後續需要送出）
   document.getElementById("mainPhone").value = allData.phone;
