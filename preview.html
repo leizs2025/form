@@ -207,7 +207,7 @@ function updateTotalAmount() {
   document.getElementById("totalSummary").textContent = rawVal === "" ? `總金額：${totalAmount} 元` : `總金額：${displayAmount} 元`;
 }
 
-
+renderPreviewArea();
 document.getElementById("submitButton").addEventListener("click", async () => {
   const payload = {
     timestamp: new Date().toISOString(),
@@ -222,7 +222,7 @@ document.getElementById("submitButton").addEventListener("click", async () => {
     past:     (allData.past || []).slice(0, 4),
     ground:   (allData.ground || []).slice(0, 2),
   };
-renderPreviewArea();
+
   try {
     const res = await fetch("https://form.gealarm2012.workers.dev/gas1", {
       method: "POST",
