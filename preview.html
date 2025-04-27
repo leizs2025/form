@@ -73,6 +73,19 @@
       color: #ccc;
       text-decoration: underline;
     }
+   
+    .preview-box {
+      background: #4a4a4a;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative; /* ✨加這行，讓內部元素可以定位 */
+}
+
+
   </style>
 </head>
 <body>
@@ -150,108 +163,85 @@ function renderPreviewArea() {
   previewArea.innerHTML = "";
   totalAmount = 0;
 
-  const sections = [
-    { key: "ancestor", label: "祖先超度" },
-    { key: "baby", label: "水子靈超度" },
-    { key: "enemy", label: "纏身靈 / 冤親債主超度" },
-    { key: "past", label: "前世今生所殺生靈超度" },
-    { key: "ground", label: "地基主 / 土地公超度" }
-  ];
+  sections.forEach(({ key, label }) => {
+    const data = Array.isArray(allData[key]) ? allData[key] : [];
 
-filtered.forEach((entry, index) => {
-  const box = document.createElement("div");
-  box.className = "preview-box entry";
+    const filtered = data.filter(entry =>
+      Object.values(entry).some(val => val !== "" && val !== null && val !== undefined)
+    );
 
-  Object.entries(itemLabelsMap[key] || {}).forEach(([field, labelName]) => {
-    const value = entry[field];
-    if (value !== undefined && value !== "") {
-      const item = document.createElement("div");
-      item.className = "item";
-      item.textContent = `${labelName}: ${value}`;
-      box.appendChild(item);
-    }
+    if (filtered.length === 0) return;
+
+    // 插入分類標題
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "section-title";
+    sectionTitle.textContent = label;
+    previewArea.appendChild(sectionTitle);
+
+    // 遍歷每一筆
+    filtered.forEach((entry, index) => {
+      const box = document.createElement("div");
+      box.className = "preview-box entry";
+
+      Object.entries(itemLabelsMap[key] || {}).forEach(([field, labelName]) => {
+        const value = entry[field];
+        if (value !== undefined && value !== "") {
+          const item = document.createElement("div");
+          item.className = "item";
+          item.textContent = `${labelName}: ${value}`;
+          box.appendChild(item);
+        }
+      });
+
+      const subtotal = calcSubtotal(entry);
+      const subtotalEl = document.createElement("div");
+      subtotalEl.className = "item";
+      subtotalEl.style.fontWeight = "bold";
+      subtotalEl.textContent = `此項目金額：${subtotal} 元`;
+      box.appendChild(subtotalEl);
+
+      // 加刪除按鈕
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "🗑";
+      deleteButton.style.position = "absolute";
+      deleteButton.style.top = "8px";
+      deleteButton.style.right = "12px";
+      deleteButton.style.background = "transparent";
+      deleteButton.style.border = "none";
+      deleteButton.style.color = "#ff6b6b"; // 柔和紅色
+      deleteButton.style.cursor = "pointer";
+      deleteButton.style.fontSize = "1.2rem"; // 小小的
+      deleteButton.onclick = () => deleteEntry(key, index);
+      box.appendChild(deleteButton);
+
+
+      previewArea.appendChild(box);
+      totalAmount += subtotal;
+    });
   });
-
-  const subtotal = calcSubtotal(entry);
-  const subtotalEl = document.createElement("div");
-  subtotalEl.className = "item";
-  subtotalEl.style.fontWeight = "bold";
-  subtotalEl.textContent = `此項目金額：${subtotal} 元`;
-  box.appendChild(subtotalEl);
-
-  // ✨ 加上刪除按鈕
-  const deleteButton = document.createElement("button");
-  deleteButton.textContent = "🗑 刪除這筆";
-  deleteButton.style.marginTop = "0.5rem";
-  deleteButton.style.display = "block";
-  deleteButton.style.marginLeft = "auto";
-  deleteButton.style.marginRight = "auto";
-  deleteButton.onclick = () => deleteEntry(key, index);
-  box.appendChild(deleteButton);
-
-  previewArea.appendChild(box);
-  totalAmount += subtotal;
-});
-
 
   updateTotalAmount();
 }
 
+// --- 刪除單筆 ---
+function deleteEntry(sectionKey, entryIndex) {
+  if (!confirm("確定要刪除這筆資料嗎？")) return;
+  allData[sectionKey].splice(entryIndex, 1);
+  localStorage.setItem("allFormData", JSON.stringify(allData));
+  renderPreviewArea();
+}
 
+// --- 金額更新 ---
 function updateTotalAmount() {
   const rawVal = document.getElementById("donation")?.value;
   const donation = Number(rawVal || 0);
   const displayAmount = totalAmount + donation;
-  document.getElementById("totalSummary").textContent = rawVal === "" ? `總金額：${totalAmount} 元` : `總金額：${displayAmount} 元`;
+  document.getElementById("totalSummary").textContent =
+    rawVal === "" ? `總金額：${totalAmount} 元` : `總金額：${displayAmount} 元`;
 }
 
+// --- 頁面一進來就呼叫一次 ---
 renderPreviewArea();
-document.getElementById("submitButton").addEventListener("click", async () => {
-  const payload = {
-    timestamp: new Date().toISOString(),
-    phone: generatePrefixedPhone(allData.phone, allData.festival || ""),
-    name: allData.name,
-    address: allData.address,
-    festival: allData.festival || "",
-    donation: Number(document.getElementById("donation")?.value || 0),
-    ancestor: (allData.ancestor || []).slice(0, 8),
-    baby:     (allData.baby || []).slice(0, 5),
-    enemy:    (allData.enemy || []).slice(0, 5),
-    past:     (allData.past || []).slice(0, 4),
-    ground:   (allData.ground || []).slice(0, 2),
-  };
-
-  try {
-    const res = await fetch("https://form.gealarm2012.workers.dev/gas1", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.text();
-    if (result && result.includes("成功")) {
-      alert("已送出報名資料，感謝您！");
-      localStorage.removeItem("allFormData");
-      window.location.href = "index.html";
-    } else {
-      alert("送出失敗，請稍後再試");
-    }
-  } catch (err) {
-    alert("送出錯誤：" + err.message);
-  }
-});
-  function deleteEntry(sectionKey, entryIndex) {
-  if (!confirm("確定要刪除這筆資料嗎？")) return;
-
-  // 從 allFormData 裡刪除
-  allData[sectionKey].splice(entryIndex, 1);
-
-  // 更新 localStorage
-  localStorage.setItem("allFormData", JSON.stringify(allData));
-
-  // 重新渲染預覽頁面
-  renderPreviewArea();
-}
-
 
 </script>
 
