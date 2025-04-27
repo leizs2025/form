@@ -146,39 +146,55 @@ const calcSubtotal = (entry) => {
     return sum + (Number(entry[key] || 0) * price);
   }, 0);
 };
+function renderPreviewArea() {
+  previewArea.innerHTML = "";
+  totalAmount = 0;
 
-sections.forEach(({ key, label }) => {
-  const data = Array.isArray(allData[key]) ? allData[key] : [];
-  const filtered = data.filter(entry => Object.values(entry).some(val => val !== "" && val !== null && val !== undefined));
-  if (filtered.length === 0) return;
+  sections.forEach(({ key, label }) => {
+    const data = Array.isArray(allData[key]) ? allData[key] : [];
+    const filtered = data.filter(entry => Object.values(entry).some(val => val !== "" && val !== null && val !== undefined));
+    if (filtered.length === 0) return;
 
-  const sectionTitle = document.createElement("div");
-  sectionTitle.className = "section-title";
-  sectionTitle.textContent = label;
-  previewArea.appendChild(sectionTitle);
+    const sectionTitle = document.createElement("div");
+    sectionTitle.className = "section-title";
+    sectionTitle.textContent = label;
+    previewArea.appendChild(sectionTitle);
 
-  filtered.forEach(entry => {
-    const box = document.createElement("div");
-    box.className = "preview-box entry";
-    Object.entries(itemLabelsMap[key] || {}).forEach(([field, label]) => {
-      const value = entry[field];
-      if (value !== undefined && value !== "") {
-        const item = document.createElement("div");
-        item.className = "item";
-        item.textContent = `${label}: ${value}`;
-        box.appendChild(item);
-      }
+    filtered.forEach((entry, index) => {  // ✨ 這裡加了 index！
+      const box = document.createElement("div");
+      box.className = "preview-box entry";
+
+      Object.entries(itemLabelsMap[key] || {}).forEach(([field, label]) => {
+        const value = entry[field];
+        if (value !== undefined && value !== "") {
+          const item = document.createElement("div");
+          item.className = "item";
+          item.textContent = `${label}: ${value}`;
+          box.appendChild(item);
+        }
+      });
+
+      const subtotal = calcSubtotal(entry);
+      const subtotalEl = document.createElement("div");
+      subtotalEl.className = "item";
+      subtotalEl.style.fontWeight = "bold";
+      subtotalEl.textContent = `此項目金額：${subtotal} 元`;
+      box.appendChild(subtotalEl);
+
+      // ✨ 加刪除按鈕
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "🗑 刪除這筆";
+      deleteButton.style.marginTop = "0.5rem";
+      deleteButton.onclick = () => deleteEntry(key, index);
+      box.appendChild(deleteButton);
+
+      previewArea.appendChild(box);
+      totalAmount += subtotal;
     });
-    const subtotal = calcSubtotal(entry);
-    const subtotalEl = document.createElement("div");
-    subtotalEl.className = "item";
-    subtotalEl.style.fontWeight = "bold";
-    subtotalEl.textContent = `此項目金額：${subtotal} 元`;
-    box.appendChild(subtotalEl);
-    previewArea.appendChild(box);
-    totalAmount += subtotal;
   });
-});
+
+  updateTotalAmount();
+}
 
 function updateTotalAmount() {
   const rawVal = document.getElementById("donation")?.value;
@@ -186,7 +202,7 @@ function updateTotalAmount() {
   const displayAmount = totalAmount + donation;
   document.getElementById("totalSummary").textContent = rawVal === "" ? `總金額：${totalAmount} 元` : `總金額：${displayAmount} 元`;
 }
-updateTotalAmount();
+
 
 document.getElementById("submitButton").addEventListener("click", async () => {
   const payload = {
@@ -221,6 +237,20 @@ document.getElementById("submitButton").addEventListener("click", async () => {
     alert("送出錯誤：" + err.message);
   }
 });
+  function deleteEntry(sectionKey, entryIndex) {
+  if (!confirm("確定要刪除這筆資料嗎？")) return;
+
+  // 從 allFormData 裡刪除
+  allData[sectionKey].splice(entryIndex, 1);
+
+  // 更新 localStorage
+  localStorage.setItem("allFormData", JSON.stringify(allData));
+
+  // 重新渲染預覽頁面
+  renderPreviewArea();
+}
+
+
 </script>
 
 </body>
