@@ -148,7 +148,7 @@ const sections = [
   { key: "baby", label: "水子靈超度", count: 5 },
   { key: "enemy", label: "纏身靈 / 冤親債主超度", count: 5 },
   { key: "past", label: "前世今生所殺生靈超度", count: 4 },
-  { key: "ground", label: "地基主 / 土地公超度", count: 2 }
+  { key: "ground", label: "地基主 / 土地公超度", count: 3 }
 ];
 
 let totalAmount = 0;
@@ -259,7 +259,7 @@ document.getElementById("submitButton").addEventListener("click", async (e) => {
     baby:     (allData.baby || []).slice(0, 5),
     enemy:    (allData.enemy || []).slice(0, 5),
     past:     (allData.past || []).slice(0, 4),
-    ground:   (allData.ground || []).slice(0, 2),
+    ground:   (allData.ground || []).slice(0, 3),
   };
 
   try {
