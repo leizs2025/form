@@ -42,7 +42,7 @@
     <option value="">--请选择--</option>
     <option value="清明节">清明节</option>
     <option value="中元节">中元节</option>
-    <option value="红贵神">红贵神</option>
+    <option value="大随求">大随求</option>
   </select>
   <button class="btn" onclick="nextStep1()">下一步</button>
 </div>
@@ -178,7 +178,7 @@ function submitData() {
   const categoryLetterMap = {
     '清明节': 'm',
     '中元节': 'y',
-    '红贵神': 'h'
+    '大随求': 'q'
   };
   const selectedLetter = categoryLetterMap[submitter?.category] || '';
   const prefix = yearLastDigit + selectedLetter;
