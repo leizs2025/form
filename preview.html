@@ -130,7 +130,8 @@ function generatePrefixedPhone(phone, festival) {
   let prefix = "";
   if (festival === "清明节") prefix = `${yearCode}m`;
   else if (festival === "中元节") prefix = `${yearCode}y`;
-  else if (festival === "大随求") prefix = `${yearCode}q`;
+  else if (festival === "不空羂索") prefix = `${yearCode}q`;
+  else if (festival === "感恩护法") prefix = `${yearCode}b`;
   return prefix + phone;
 }
 
@@ -287,3 +288,4 @@ document.getElementById("submitButton").addEventListener("click", async (e) => {
 
 </body>
 </html>
+
